@@ -1,0 +1,192 @@
+#!/bin/bash
+
+FILE_PATH="$*"
+FILE_PATH_WITHOUT_EXTENSION="${FILE_PATH%.*}"
+FILE_BASENAME=$(basename -- "$FILE_PATH")
+FILE_EXTENSION="${FILE_BASENAME##*.}"
+FILE_NAME="${FILE_BASENAME%.*}"
+FILE_DIRECTORY=$(dirname "${FILE_PATH}")
+
+IS_TVSHOW_EPISODE="FALSE"
+IS_OPTIMISABLE="FALSE"
+FFMPEG_ARGUMENTS=""
+
+OUTPUT_FILE_NAME=${FILE_NAME}
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/ - / /g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[\ \.]\(720p\|1080p\|2160p\|UHD\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[\ \.]\(HEVC\|x264\|x265\|HDR\|Blu-ray\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[\ \.]\(Remux\|REMUX\|WEBRip\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[\ \.]\(Atmos\|DTS-HD[\ \.]MA\|DTSX\|TrueHD\|6.1\|7\.1\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[\ \.-]\(playBD\|TrollUHD\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | iconv -f utf-8 -t ascii//translit)
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's@\(?\|!\|\\\|/\)@@g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\./ /g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\(Disney\)$//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/(*\(19\|20\)[0-9][0-9])*$//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\ +$//g')
+OUTPUT_FILE_PATH_WITHOUT_EXTENSION="${FILE_DIRECTORY}/${OUTPUT_FILE_NAME}"
+
+if [ $(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c) -gt 0 ]; then
+    IS_TVSHOW_EPISODE="TRUE"
+fi
+
+echo "Gathering file info for ${FILE_PATH} ..."
+CONTAINER_FORMAT=$(mkvmerge -i "${FILE_PATH}" | head -n 1 | awk -F: '{print $3}' | sed 's/ //g')
+AUDIO_FORMAT=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | head -n 1 | awk '{print $5}' | sed 's/\((\|)\)//g')
+AUDIO_FORMAT_SECOND=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | head -n 2 | tail -n 1 | awk '{print $5}' | sed 's/\((\|)\)//g')
+SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
+
+function getTrackLanguage {
+    TRACK_ID=$1
+    TRACK_ID_MKVINFO=$((TRACK_ID+1))
+
+    MKVINFO_TRACK_BEGIN_LINE=$(mkvinfo "${FILE_PATH}" | grep -n "+ Track number: ${TRACK_ID_MKVINFO}" | awk -F: '{print $1}')
+    MKVINFO_TRACK_END_LINE=$(mkvinfo "${FILE_PATH}" | tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | grep -n "\(| +\||+\)" | head -n 1 | awk -F: '{print $1}')
+    MKVINFO_TRACK_END_LINE=$((MKVINFO_TRACK_BEGIN_LINE+MKVINFO_TRACK_END_LINE-2))
+    MKVINFO_TRACK_LINES_COUNT=$((MKVINFO_TRACK_END_LINE-MKVINFO_TRACK_BEGIN_LINE+1))
+
+    TRACK_LANGUAGE=$(mkvinfo "${FILE_PATH}" | tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | head -n ${MKVINFO_TRACK_LINES_COUNT} | grep "+ Language:" | awk -F: '{print toupper($2)}' | sed 's/ //g')
+
+    echo ${TRACK_LANGUAGE}
+}
+
+function getAudioFfmpegArgs {
+    AUDIO_FFMPEG_ARGUMENTS=""
+
+    if [ "${AUDIO_FORMAT}" != "AAC" ] && \
+       #[ "${AUDIO_FORMAT}" != "AC-3" ] && \
+       #[ "${AUDIO_FORMAT}" != "E-AC-3" ] && \
+       [ "${AUDIO_FORMAT}" != "Opus" ] && \
+       [ "${AUDIO_FORMAT}" != "MP3" ]; then
+        AUDIO_FFMPEG_ARGUMENTS="-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+    fi
+
+    echo "${AUDIO_FFMPEG_ARGUMENTS}"
+}
+
+AUDIO_FFMPEG_ARGUMENTS=$(getAudioFfmpegArgs)
+
+if [ -n "${AUDIO_FFMPEG_ARGUMENTS}" ]; then
+    echo "Audio track needs conversion!"
+    IS_OPTIMISABLE="TRUE"
+    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${AUDIO_FFMPEG_ARGUMENTS}"
+elif [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then
+    echo "File format needs conversion!"
+    IS_OPTIMISABLE="TRUE"
+    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
+fi
+
+if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
+    if [ "${IS_TVSHOW_EPISODE}" == "FALSE" ]; then
+        echo "Subtitles need removal!"
+        IS_OPTIMISABLE="TRUE"
+        FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map -0:s"
+
+        SUBTITLE_TRACKS=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "\(SRT\|SubStationAlpha\)" | awk '{print $3}' | awk -F: '{print $1}')
+
+        if [ -z "${SUBTITLE_TRACKS}" ]; then
+            echo "No text subtitles found!"
+        else
+            echo "Subtitle tracks found:"
+            UNKNOWN_LANGUAGE_TRACKS_COUNT=0
+
+            for TRACK_ID in ${SUBTITLE_TRACKS}; do
+                TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+
+                if [ -z "${TRACK_LANGUAGE}" ]; then
+                    TRACK_LANGUAGE="(unknown)"
+                    UNKNOWN_LANGUAGE_TRACKS_COUNT=$((UNKNOWN_LANGUAGE_TRACKS_COUNT+1))
+                fi
+
+                echo "#${TRACK_ID}: ${TRACK_LANGUAGE}"
+            done
+
+            read -p "Do you want to save the subtitles before removing them? [Y/n] " -n 1 -r
+            echo
+
+            if [[ ${REPLY} =~ ^[Yy]$ ]] || [ -z "${REPLY}" ]; then
+                SUBTITLES_FFMPEG_ARGUMENTS=""
+                for TRACK_ID in ${SUBTITLE_TRACKS}; do
+                    TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+
+                    SUBTITLE_TRACK_INDEX=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "^Track ID ${TRACK_ID}" -n | awk -F: '{print $1}')
+                    SUBTITLE_TRACK_INDEX=$((SUBTITLE_TRACK_INDEX-1))
+
+                    if [ -z "${TRACK_LANGUAGE}" ]; then
+                        if [ ${UNKNOWN_LANGUAGE_TRACKS_COUNT} -gt 1 ]; then
+                            echo "Unknown language for subtitle track ${TRACK_ID}"
+                            TRACK_LANGUAGE="UNKNOWN_LANGUAGE_TRACK${TRACK_ID}"
+                        else
+                            TRACK_LANGUAGE="ENG"
+                        fi
+                    fi
+
+                    SUBTITLE_FILE_PATH="${OUTPUT_FILE_PATH_WITHOUT_EXTENSION}.${TRACK_LANGUAGE}.srt"
+                    if [ -f "${SUBTITLE_FILE_PATH}" ]; then
+                        rm "${SUBTITLE_FILE_PATH}"
+                    fi
+
+                    SUBTITLES_FFMPEG_ARGUMENTS="${SUBTITLES_FFMPEG_ARGUMENTS} -map 0:s:${SUBTITLE_TRACK_INDEX} -c:s srt extractedSubtitleFile.${TRACK_LANGUAGE}.srt"
+                done
+            fi
+        fi
+    else
+        FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:s -c:s copy"
+    fi
+fi
+
+if [ "${IS_OPTIMISABLE}" == "TRUE" ]; then
+    OUTPUT_TEMP_FILE="${OUTPUT_FILE_PATH_WITHOUT_EXTENSION}.OPTIMISED.mkv"
+    OUTPUT_FILE="${OUTPUT_FILE_PATH_WITHOUT_EXTENSION}.mkv"
+
+    if [ -f "${OUTPUT_TEMP_FILE}" ]; then
+        rm "${OUTPUT_TEMP_FILE}"
+    fi
+
+    du -sh "${FILE_PATH}"
+    mkvmerge -i "${FILE_PATH}"
+
+    MANDATORY_FFMPEG_ARGUMENTS="-map 0:v:0 -c:v:0 copy"
+
+    for INDEX in {1..5}; do
+        MANDATORY_FFMPEG_ARGUMENTS="${MANDATORY_FFMPEG_ARGUMENTS} -map -0:a:${INDEX}"
+    done
+
+    FFMPEG_ARGUMENTS="${MANDATORY_FFMPEG_ARGUMENTS} ${FFMPEG_ARGUMENTS}"
+
+    if [ ! -z "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
+        echo "Extracting the subtitles..."
+        ffmpeg -i "${FILE_PATH}" ${SUBTITLES_FFMPEG_ARGUMENTS}
+        perl-rename 's/extractedSubtitleFile/'"${OUTPUT_FILE_NAME}"'/g' "${FILE_DIRECTORY}"/*
+    fi
+
+    echo "ffmpeg arguments:"
+    echo "${FFMPEG_ARGUMENTS}"
+
+    echo "Optimising ${FILE_PATH}..."
+    echo "Output file: ${OUTPUT_TEMP_FILE}"
+    ffmpeg -i "${FILE_PATH}" ${FFMPEG_ARGUMENTS} "${OUTPUT_TEMP_FILE}"
+
+    if [ ! -f "${OUTPUT_TEMP_FILE}" ]; then
+        exit
+    fi
+
+    echo ">>> DONE!"
+
+    echo "Size before:"
+    du -sh "${FILE_PATH}"
+    echo "Size after:"
+    du -sh "${OUTPUT_TEMP_FILE}"
+
+    mkvmerge -i "${OUTPUT_TEMP_FILE}"
+
+    read -p "Do you want to replace the original file? [y/N] " -n 1 -r
+    echo
+
+    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        rm "${FILE_PATH}"
+        mv "${OUTPUT_TEMP_FILE}" "${OUTPUT_FILE}"
+    fi
+else
+    echo "No optimisation needed!"
+fi
