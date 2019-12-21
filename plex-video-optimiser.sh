@@ -160,32 +160,42 @@ if [ "${IS_OPTIMISABLE}" == "TRUE" ]; then
         perl-rename 's/extractedSubtitleFile/'"${OUTPUT_FILE_NAME}"'/g' "${FILE_DIRECTORY}"/*
     fi
 
+    echo "Output file: ${OUTPUT_TEMP_FILE}"
     echo "ffmpeg arguments:"
     echo "${FFMPEG_ARGUMENTS}"
 
-    echo "Optimising ${FILE_PATH}..."
-    echo "Output file: ${OUTPUT_TEMP_FILE}"
-    ffmpeg -i "${FILE_PATH}" ${FFMPEG_ARGUMENTS} "${OUTPUT_TEMP_FILE}"
-
-    if [ ! -f "${OUTPUT_TEMP_FILE}" ]; then
-        exit
-    fi
-
-    echo ">>> DONE!"
-
-    echo "Size before:"
-    du -sh "${FILE_PATH}"
-    echo "Size after:"
-    du -sh "${OUTPUT_TEMP_FILE}"
-
-    mkvmerge -i "${OUTPUT_TEMP_FILE}"
-
-    read -p "Do you want to replace the original file? [y/N] " -n 1 -r
+    read -p "Are you sure you want to optimise the video with the mentioned settings? [Y/n] " -n 1 -r
     echo
 
-    if [[ ${REPLY} =~ ^[Yy]$ ]]; then
-        rm "${FILE_PATH}"
-        mv "${OUTPUT_TEMP_FILE}" "${OUTPUT_FILE}"
+    FINISHED_OPTIMISING="FALSE"
+
+    if [[ ${REPLY} =~ ^[Yy]$ ]] || [ -z "${REPLY}" ]; then
+        echo "Optimising ${FILE_PATH}..."
+        ffmpeg -i "${FILE_PATH}" ${FFMPEG_ARGUMENTS} "${OUTPUT_TEMP_FILE}"
+
+        if [ ! -f "${OUTPUT_TEMP_FILE}" ]; then
+            exit
+        fi
+
+        echo ">>> DONE!"
+        FINISHED_OPTIMISING="TRUE"
+
+        echo "Size before:"
+        du -sh "${FILE_PATH}"
+        echo "Size after:"
+        du -sh "${OUTPUT_TEMP_FILE}"
+
+        mkvmerge -i "${OUTPUT_TEMP_FILE}"
+    fi
+
+    if [ "${FINISHED_OPTIMISING}" == "TRUE" ]; then
+        read -p "Do you want to replace the original file? [y/N] " -n 1 -r
+        echo
+
+        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+            rm "${FILE_PATH}"
+            mv "${OUTPUT_TEMP_FILE}" "${OUTPUT_FILE}"
+        fi
     fi
 else
     echo "No optimisation needed!"
