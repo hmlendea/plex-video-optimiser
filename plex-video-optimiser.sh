@@ -79,61 +79,57 @@ elif [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]
 fi
 
 if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
-    if [ "${IS_TVSHOW_EPISODE}" == "FALSE" ]; then
-        echo "Subtitles need removal!"
-        IS_OPTIMISABLE="TRUE"
-        FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map -0:s"
+    echo "Subtitles need removal!"
+    IS_OPTIMISABLE="TRUE"
+    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map -0:s"
 
-        SUBTITLE_TRACKS=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "\(SRT\|SubStationAlpha\)" | awk '{print $3}' | awk -F: '{print $1}')
+    SUBTITLE_TRACKS=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "\(SRT\|SubStationAlpha\)" | awk '{print $3}' | awk -F: '{print $1}')
 
-        if [ -z "${SUBTITLE_TRACKS}" ]; then
-            echo "No text subtitles found!"
-        else
-            echo "Subtitle tracks found:"
-            UNKNOWN_LANGUAGE_TRACKS_COUNT=0
+    if [ -z "${SUBTITLE_TRACKS}" ]; then
+        echo "No text subtitles found!"
+    else
+        echo "Subtitle tracks found:"
+        UNKNOWN_LANGUAGE_TRACKS_COUNT=0
 
+        for TRACK_ID in ${SUBTITLE_TRACKS}; do
+            TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+
+            if [ -z "${TRACK_LANGUAGE}" ]; then
+                TRACK_LANGUAGE="(unknown)"
+                UNKNOWN_LANGUAGE_TRACKS_COUNT=$((UNKNOWN_LANGUAGE_TRACKS_COUNT+1))
+            fi
+
+            echo "#${TRACK_ID}: ${TRACK_LANGUAGE}"
+        done
+
+        read -p "Do you want to save the subtitles before removing them? [Y/n] " -n 1 -r
+        echo
+
+        if [[ ${REPLY} =~ ^[Yy]$ ]] || [ -z "${REPLY}" ]; then
+            SUBTITLES_FFMPEG_ARGUMENTS=""
             for TRACK_ID in ${SUBTITLE_TRACKS}; do
                 TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
 
+                SUBTITLE_TRACK_INDEX=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "^Track ID ${TRACK_ID}" -n | awk -F: '{print $1}')
+                SUBTITLE_TRACK_INDEX=$((SUBTITLE_TRACK_INDEX-1))
+
                 if [ -z "${TRACK_LANGUAGE}" ]; then
-                    TRACK_LANGUAGE="(unknown)"
-                    UNKNOWN_LANGUAGE_TRACKS_COUNT=$((UNKNOWN_LANGUAGE_TRACKS_COUNT+1))
+                    if [ ${UNKNOWN_LANGUAGE_TRACKS_COUNT} -gt 1 ]; then
+                        echo "Unknown language for subtitle track ${TRACK_ID}"
+                        TRACK_LANGUAGE="UNKNOWN_LANGUAGE_TRACK${TRACK_ID}"
+                    else
+                        TRACK_LANGUAGE="ENG"
+                    fi
                 fi
 
-                echo "#${TRACK_ID}: ${TRACK_LANGUAGE}"
+                SUBTITLE_FILE_PATH="${OUTPUT_FILE_PATH_WITHOUT_EXTENSION}.${TRACK_LANGUAGE}.srt"
+                if [ -f "${SUBTITLE_FILE_PATH}" ]; then
+                    rm "${SUBTITLE_FILE_PATH}"
+                fi
+
+                SUBTITLES_FFMPEG_ARGUMENTS="${SUBTITLES_FFMPEG_ARGUMENTS} -map 0:s:${SUBTITLE_TRACK_INDEX} -c:s srt extractedSubtitleFile.${TRACK_LANGUAGE}.srt"
             done
-
-            read -p "Do you want to save the subtitles before removing them? [Y/n] " -n 1 -r
-            echo
-
-            if [[ ${REPLY} =~ ^[Yy]$ ]] || [ -z "${REPLY}" ]; then
-                SUBTITLES_FFMPEG_ARGUMENTS=""
-                for TRACK_ID in ${SUBTITLE_TRACKS}; do
-                    TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
-
-                    SUBTITLE_TRACK_INDEX=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "^Track ID ${TRACK_ID}" -n | awk -F: '{print $1}')
-                    SUBTITLE_TRACK_INDEX=$((SUBTITLE_TRACK_INDEX-1))
-
-                    if [ -z "${TRACK_LANGUAGE}" ]; then
-                        if [ ${UNKNOWN_LANGUAGE_TRACKS_COUNT} -gt 1 ]; then
-                            echo "Unknown language for subtitle track ${TRACK_ID}"
-                            TRACK_LANGUAGE="UNKNOWN_LANGUAGE_TRACK${TRACK_ID}"
-                        else
-                            TRACK_LANGUAGE="ENG"
-                        fi
-                    fi
-
-                    SUBTITLE_FILE_PATH="${OUTPUT_FILE_PATH_WITHOUT_EXTENSION}.${TRACK_LANGUAGE}.srt"
-                    if [ -f "${SUBTITLE_FILE_PATH}" ]; then
-                        rm "${SUBTITLE_FILE_PATH}"
-                    fi
-
-                    SUBTITLES_FFMPEG_ARGUMENTS="${SUBTITLES_FFMPEG_ARGUMENTS} -map 0:s:${SUBTITLE_TRACK_INDEX} -c:s srt extractedSubtitleFile.${TRACK_LANGUAGE}.srt"
-                done
-            fi
         fi
-    else
-        FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:s -c:s copy"
     fi
 fi
 
