@@ -55,11 +55,10 @@ function getTrackLanguage {
 function getAudioFfmpegArgs {
     AUDIO_FFMPEG_ARGUMENTS=""
 
-    if [ "${AUDIO_FORMAT}" != "AAC" ] && \
-       #[ "${AUDIO_FORMAT}" != "AC-3" ] && \
-       #[ "${AUDIO_FORMAT}" != "E-AC-3" ] && \
-       [ "${AUDIO_FORMAT}" != "Opus" ] && \
-       [ "${AUDIO_FORMAT}" != "MP3" ]; then
+    if [ "${AUDIO_FORMAT}" != "AAC" ] &&
+       [ "${AUDIO_FORMAT}" != "MP3" ] &&
+       [ "${AUDIO_FORMAT}" != "AC-3" ] &&
+       [ "${AUDIO_FORMAT}" != "Opus" ]; then
         AUDIO_FFMPEG_ARGUMENTS="-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
     fi
 
@@ -72,7 +71,11 @@ if [ -n "${AUDIO_FFMPEG_ARGUMENTS}" ]; then
     echo "Audio track needs conversion!"
     IS_OPTIMISABLE="TRUE"
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${AUDIO_FFMPEG_ARGUMENTS}"
-elif [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then
+else
+    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
+fi
+
+if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then
     echo "File format needs conversion!"
     IS_OPTIMISABLE="TRUE"
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
