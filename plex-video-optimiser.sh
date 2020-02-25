@@ -7,6 +7,8 @@ FILE_EXTENSION="${FILE_BASENAME##*.}"
 FILE_NAME="${FILE_BASENAME%.*}"
 FILE_DIRECTORY=$(dirname "${FILE_PATH}")
 
+SESSION_ID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+
 IS_TVSHOW_EPISODE="FALSE"
 IS_OPTIMISABLE="FALSE"
 FFMPEG_ARGUMENTS=""
@@ -130,7 +132,7 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
                     rm "${SUBTITLE_FILE_PATH}"
                 fi
 
-                SUBTITLES_FFMPEG_ARGUMENTS="${SUBTITLES_FFMPEG_ARGUMENTS} -map 0:s:${SUBTITLE_TRACK_INDEX} -c:s srt extractedSubtitleFile.${TRACK_LANGUAGE}.srt"
+                SUBTITLES_FFMPEG_ARGUMENTS="${SUBTITLES_FFMPEG_ARGUMENTS} -map 0:s:${SUBTITLE_TRACK_INDEX} -c:s srt extractedSubtitleFile.${SESSION_ID}.${TRACK_LANGUAGE}.srt"
             done
         fi
     fi
@@ -158,7 +160,7 @@ if [ "${IS_OPTIMISABLE}" == "TRUE" ]; then
     if [ ! -z "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
         echo "Extracting the subtitles..."
         ffmpeg -i "${FILE_PATH}" ${SUBTITLES_FFMPEG_ARGUMENTS}
-        perl-rename 's/extractedSubtitleFile/'"${OUTPUT_FILE_NAME}"'/g' "${FILE_DIRECTORY}"/*
+        perl-rename 's/extractedSubtitleFile\.'"${SESSION_ID}"'/'"${OUTPUT_FILE_NAME}"'/g' "${FILE_DIRECTORY}"/*
     fi
 
     echo "Output file: ${OUTPUT_TEMP_FILE}"
