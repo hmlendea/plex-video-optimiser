@@ -98,7 +98,6 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
 
         for TRACK_ID in ${SUBTITLE_TRACKS}; do
             TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
-
             if [ -z "${TRACK_LANGUAGE}" ]; then
                 TRACK_LANGUAGE="(unknown)"
                 UNKNOWN_LANGUAGE_TRACKS_COUNT=$((UNKNOWN_LANGUAGE_TRACKS_COUNT+1))
@@ -112,8 +111,18 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
 
         if [[ ${REPLY} =~ ^[Yy]$ ]] || [ -z "${REPLY}" ]; then
             SUBTITLES_FFMPEG_ARGUMENTS=""
-            for TRACK_ID in ${SUBTITLE_TRACKS}; do
+            TRACK_LANGUAGES=""
+
+        for TRACK_ID in ${SUBTITLE_TRACKS}; do
                 TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+
+                DUPLICATIONS=$(echo "${TRACK_LANGUAGES}" | grep "${TRACK_LANGUAGE}," -c)
+                if [ ! -z "${TRACK_LANGUAGE}" ]; then
+                    TRACK_LANGUAGES="${TRACK_LANGUAGES}${TRACK_LANGUAGE},"
+                    if [ ${DUPLICATIONS} -ge 1 ]; then
+                        TRACK_LANGUAGE=${TRACK_LANGUAGE}$((DUPLICATIONS+1))
+                    fi
+                fi
 
                 SUBTITLE_TRACK_INDEX=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "^Track ID ${TRACK_ID}" -n | awk -F: '{print $1}')
                 SUBTITLE_TRACK_INDEX=$((SUBTITLE_TRACK_INDEX-1))
