@@ -113,7 +113,7 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
             SUBTITLES_FFMPEG_ARGUMENTS=""
             TRACK_LANGUAGES=""
 
-        for TRACK_ID in ${SUBTITLE_TRACKS}; do
+            for TRACK_ID in ${SUBTITLE_TRACKS}; do
                 TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
 
                 DUPLICATIONS=$(echo "${TRACK_LANGUAGES}" | grep "${TRACK_LANGUAGE}," -c)
@@ -124,7 +124,7 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
                     fi
                 fi
 
-                SUBTITLE_TRACK_INDEX=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "^Track ID ${TRACK_ID}" -n | awk -F: '{print $1}')
+                SUBTITLE_TRACK_INDEX=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "^Track ID ${TRACK_ID}:" -n | awk -F: '{print $1}')
                 SUBTITLE_TRACK_INDEX=$((SUBTITLE_TRACK_INDEX-1))
 
                 if [ -z "${TRACK_LANGUAGE}" ]; then
