@@ -40,6 +40,8 @@ AUDIO_FORMAT=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | h
 AUDIO_FORMAT_SECOND=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | head -n 2 | tail -n 1 | awk '{print $5}' | sed 's/\((\|)\)//g')
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
+echo "Output file name: $OUTPUT_FILE_NAME"
+
 function getTrackLanguage {
     TRACK_ID=$1
     TRACK_ID_MKVINFO=$((TRACK_ID+1))
