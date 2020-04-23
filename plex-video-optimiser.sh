@@ -14,7 +14,7 @@ IS_OPTIMISABLE="FALSE"
 FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(BLUTONiUM\|EbP\|ETRG\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|MovietaM\|NTb\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(BLUTONiUM\|CHD\|EbP\|ETRG\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|MovietaM\|NTb\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|ZON3\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(720p\|1080p\|2160p\|4K\|UHD\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|HEVC\|x26[45]\|[Hh]\.26[45]\|-AJP69\|Blu-*[Rr]ay\)//g')
