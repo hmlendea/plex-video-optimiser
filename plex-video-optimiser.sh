@@ -40,7 +40,9 @@ AUDIO_FORMAT=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | h
 AUDIO_FORMAT_SECOND=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | head -n 2 | tail -n 1 | awk '{print $5}' | sed 's/\((\|)\)//g')
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
-echo "Output file name: $OUTPUT_FILE_NAME"
+echo "Audio 1 format: ${AUDIO_FORMAT}"
+echo "Audio 2 format: ${AUDIO_FORMAT_SECOND}"
+echo "Output file name: ${OUTPUT_FILE_NAME}"
 
 function getTrackLanguage {
     TRACK_ID=$1
@@ -56,17 +58,29 @@ function getTrackLanguage {
     echo ${TRACK_LANGUAGE}
 }
 
-function getAudioFfmpegArgs {
-    AUDIO_FFMPEG_ARGUMENTS=""
+function isAudioFormatAcceptable {
+    AUDIO_FORMAT_TO_CHECK="${1}"
 
-    if [ "${AUDIO_FORMAT}" != "AAC" ] &&
-       [ "${AUDIO_FORMAT}" != "MP3" ] &&
-       [ "${AUDIO_FORMAT}" != "AC-3" ] &&
-       [ "${AUDIO_FORMAT}" != "Opus" ]; then
-        AUDIO_FFMPEG_ARGUMENTS="-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+    if [ "${AUDIO_FORMAT_TO_CHECK}" == "AAC" ] ||
+       [ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ] ||
+       [ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ] ||
+       [ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]; then
+        return 0 # True
+    else
+        return 1 # False
     fi
+}
 
-    echo "${AUDIO_FFMPEG_ARGUMENTS}"
+function getAudioFfmpegArgs {
+    if isAudioFormatAcceptable "${AUDIO_FORMAT}" ; then
+        echo ""
+    else
+        if isAudioFormatAcceptable ${AUDIO_FORMAT_SECOND} ; then
+            echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
+        else
+            echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+        fi
+    fi
 }
 
 AUDIO_FFMPEG_ARGUMENTS=$(getAudioFfmpegArgs)
