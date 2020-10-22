@@ -14,10 +14,11 @@ IS_OPTIMISABLE="FALSE"
 FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(BLUTONiUM\|CHD\|EbP\|ETRG\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|MovietaM\|NTb\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\.mkv$//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(BLUTONiUM\|CHD\|decibeL\|EbP\|ETRG\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|ZON3\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(720p\|1080p\|2160p\|4K\|UHD\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|HEVC\|x26[45]\|[Hh]\.26[45]\|-AJP69\|Blu-*[Rr]ay\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|HEVC\|x26[45]\|[Hh]\.26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Amazon\|AMZN\|Disney\|Vimeo\|WEB-DL\|WEBRip\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(REPACK\|Remux\|REMUX\|RoSubbed\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AC3\|AAC2\.0\|Atmos\|DTS\|HD[-\ \.]MA\|DD+\|DD[P]*[567]\.1\|DTSX\|FLAC[-\ \.][567]\.1\|TrueHD\|[567]\.1\)//g')
@@ -40,6 +41,7 @@ AUDIO_FORMAT=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | h
 AUDIO_FORMAT_SECOND=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | head -n 2 | tail -n 1 | awk '{print $5}' | sed 's/\((\|)\)//g')
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
+echo "Input file name: ${FILE_NAME}"
 echo "Audio 1 format: ${AUDIO_FORMAT}"
 echo "Audio 2 format: ${AUDIO_FORMAT_SECOND}"
 echo "Output file name: ${OUTPUT_FILE_NAME}"
