@@ -35,15 +35,25 @@ if [ $(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c) -gt 0 ]; then
     IS_TVSHOW_EPISODE="TRUE"
 fi
 
+function getAudioTrackFormat {
+    TRACK_NR=${1}
+    echo $( mkvmerge -i "${FILE_PATH}" | \
+            grep -E "Track ID [0-9]+: audio" | \
+            head -n ${TRACK_NR} | tail -n 1 | \
+            awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
+}
+
 echo "Gathering file info for ${FILE_PATH} ..."
 CONTAINER_FORMAT=$(mkvmerge -i "${FILE_PATH}" | head -n 1 | awk -F: '{print $3}' | sed 's/ //g')
-AUDIO_FORMAT=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | head -n 1 | awk '{print $5}' | sed 's/\((\|)\)//g')
-AUDIO_FORMAT_SECOND=$(mkvmerge -i "${FILE_PATH}" | grep -E "Track ID [0-9]+: audio" | head -n 2 | tail -n 1 | awk '{print $5}' | sed 's/\((\|)\)//g')
+AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
+AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
+AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
 echo "Input file name: ${FILE_NAME}"
-echo "Audio 1 format: ${AUDIO_FORMAT}"
-echo "Audio 2 format: ${AUDIO_FORMAT_SECOND}"
+echo "Audio 1 format: ${AUDIO_FORMAT_1}"
+echo "Audio 2 format: ${AUDIO_FORMAT_2}"
+echo "Audio 3 format: ${AUDIO_FORMAT_3}"
 echo "Output file name: ${OUTPUT_FILE_NAME}"
 
 function getTrackLanguage {
@@ -74,10 +84,10 @@ function isAudioFormatAcceptable {
 }
 
 function getAudioFfmpegArgs {
-    if isAudioFormatAcceptable "${AUDIO_FORMAT}" ; then
+    if isAudioFormatAcceptable ${AUDIO_FORMAT_1} ; then
         echo ""
     else
-        if isAudioFormatAcceptable ${AUDIO_FORMAT_SECOND} ; then
+        if isAudioFormatAcceptable ${AUDIO_FORMAT_2} ; then
             echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
         else
             echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
