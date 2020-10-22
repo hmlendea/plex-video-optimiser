@@ -71,12 +71,12 @@ function getTrackLanguage {
 }
 
 function isAudioFormatAcceptable {
-    AUDIO_FORMAT_TO_CHECK="${1}"
+    AUDIO_FORMAT_TO_CHECK="$*"
 
-    if [ "${AUDIO_FORMAT_TO_CHECK}" == "AAC" ] ||
-       [ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ] ||
-       [ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ] ||
-       [ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]; then
+    if [[ "${AUDIO_FORMAT_TO_CHECK}" == "AAC" ]] ||
+       [[ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ]] ||
+       [[ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ]] ||
+       [[ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]]; then
         return 0 # True
     else
         return 1 # False
@@ -86,12 +86,14 @@ function isAudioFormatAcceptable {
 function getAudioFfmpegArgs {
     if isAudioFormatAcceptable ${AUDIO_FORMAT_1} ; then
         echo ""
+    elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ -z "${AUDIO_FORMAT_3}" ]; then
+        echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
+    elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ ! -z "${AUDIO_FORMAT_3}" ]; then
+        echo "-map 0:a:1 -c:a:0 copy -map 0:a:2 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
+    elif isAudioFormatAcceptable ${AUDIO_FORMAT_3} ; then
+        echo "-map 0:a:2 -c:a:0 copy -map 0:a:1 -c:a:1 copy -map 0:a:1 -c:a:2 copy"
     else
-        if isAudioFormatAcceptable ${AUDIO_FORMAT_2} ; then
-            echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
-        else
-            echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
-        fi
+        echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
     fi
 }
 
