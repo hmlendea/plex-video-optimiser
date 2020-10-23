@@ -37,10 +37,16 @@ fi
 
 function getAudioTrackFormat {
     TRACK_NR=${1}
-    echo $( mkvmerge -i "${FILE_PATH}" | \
-            grep -E "Track ID [0-9]+: audio" | \
-            head -n ${TRACK_NR} | tail -n 1 | \
-            awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
+    AUDIO_TRACKS_COUNT=$(   mkvmerge -i "${FILE_PATH}" | \
+                            grep -E "Track ID [0-9]+: audio" | \
+                            wc -l)
+
+    if [ ${AUDIO_TRACKS_COUNT} -ge ${TRACK_NR} ]; then
+        echo $( mkvmerge -i "${FILE_PATH}" | \
+                grep -E "Track ID [0-9]+: audio" | \
+                head -n ${TRACK_NR} | tail -n 1 | \
+                awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
+    fi
 }
 
 echo "Gathering file info for ${FILE_PATH} ..."
