@@ -91,7 +91,7 @@ function getAudioFfmpegArgs {
     elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ ! -z "${AUDIO_FORMAT_3}" ]; then
         echo "-map 0:a:1 -c:a:0 copy -map 0:a:2 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
     elif isAudioFormatAcceptable ${AUDIO_FORMAT_3} ; then
-        echo "-map 0:a:2 -c:a:0 copy -map 0:a:1 -c:a:1 copy -map 0:a:1 -c:a:2 copy"
+        echo "-map 0:a:2 -c:a:0 copy -map 0:a:1 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
     else
         echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
     fi
