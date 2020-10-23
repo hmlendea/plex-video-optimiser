@@ -35,6 +35,13 @@ if [ $(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c) -gt 0 ]; then
     IS_TVSHOW_EPISODE="TRUE"
 fi
 
+function getVideoTrackFormat {
+    echo $( mkvmerge -i "${FILE_PATH}" | \
+            grep -E "Track ID [0-9]+: video" | \
+            head -n 1 | tail -n 1 | \
+            awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
+}
+
 function getAudioTrackFormat {
     TRACK_NR=${1}
     AUDIO_TRACKS_COUNT=$(   mkvmerge -i "${FILE_PATH}" | \
@@ -51,12 +58,14 @@ function getAudioTrackFormat {
 
 echo "Gathering file info for ${FILE_PATH} ..."
 CONTAINER_FORMAT=$(mkvmerge -i "${FILE_PATH}" | head -n 1 | awk -F: '{print $3}' | sed 's/ //g')
+VIDEO_FORMAT=$(getVideoTrackFormat)
 AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
 AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
 AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
 echo "Input file name: ${FILE_NAME}"
+echo "Video format: ${VIDEO_FORMAT}"
 echo "Audio 1 format: ${AUDIO_FORMAT_1}"
 echo "Audio 2 format: ${AUDIO_FORMAT_2}"
 echo "Audio 3 format: ${AUDIO_FORMAT_3}"
@@ -89,6 +98,14 @@ function isAudioFormatAcceptable {
     fi
 }
 
+function getVideoFfmpegArgs {
+    if [[ "${VIDEO_FORMAT}" == "VP9" ]]; then
+        echo "-map 0:v:0 -c:v:0 mpeg4"
+    else
+        echo ""
+    fi
+}
+
 function getAudioFfmpegArgs {
     if isAudioFormatAcceptable ${AUDIO_FORMAT_1} ; then
         echo ""
@@ -103,7 +120,16 @@ function getAudioFfmpegArgs {
     fi
 }
 
+VIDEO_FFMPEG_ARGUMENTS=$(getVideoFfmpegArgs)
 AUDIO_FFMPEG_ARGUMENTS=$(getAudioFfmpegArgs)
+
+if [ -n "${VIDEO_FFMPEG_ARGUMENTS}" ]; then
+    echo "Video track needs conversion!"
+    IS_OPTIMISABLE="TRUE"
+    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${VIDEO_FFMPEG_ARGUMENTS}"
+else
+    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:v -c:v copy"
+fi
 
 if [ -n "${AUDIO_FFMPEG_ARGUMENTS}" ]; then
     echo "Audio track needs conversion!"
@@ -113,10 +139,8 @@ else
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
 fi
 
-if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then
-    echo "File format needs conversion!"
-    IS_OPTIMISABLE="TRUE"
-    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
+if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then echo "File format needs conversion!"
+    IS_OPTIMISABLE="TRUE" FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
 fi
 
 if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
@@ -193,14 +217,6 @@ if [ "${IS_OPTIMISABLE}" == "TRUE" ]; then
 
     du -sh "${FILE_PATH}"
     mkvmerge -i "${FILE_PATH}"
-
-    MANDATORY_FFMPEG_ARGUMENTS="-map 0:v:0 -c:v:0 copy"
-
-    for INDEX in {1..5}; do
-        MANDATORY_FFMPEG_ARGUMENTS="${MANDATORY_FFMPEG_ARGUMENTS} -map -0:a:${INDEX}"
-    done
-
-    FFMPEG_ARGUMENTS="${MANDATORY_FFMPEG_ARGUMENTS} ${FFMPEG_ARGUMENTS}"
 
     if [ ! -z "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
         echo "Extracting the subtitles..."
