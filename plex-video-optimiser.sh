@@ -56,23 +56,36 @@ function getAudioTrackFormat {
     fi
 }
 
-echo "Gathering file info for ${FILE_PATH} ..."
-CONTAINER_FORMAT=$(mkvmerge -i "${FILE_PATH}" | head -n 1 | awk -F: '{print $3}' | sed 's/ //g')
-VIDEO_FORMAT=$(getVideoTrackFormat)
-AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
-AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
-AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
-SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
+function getAudioTrackName {
+    AUDIO_TRACK_ID=${1}
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
 
-echo "Input file name: ${FILE_NAME}"
-echo "Video format: ${VIDEO_FORMAT}"
-echo "Audio 1 format: ${AUDIO_FORMAT_1}"
-echo "Audio 2 format: ${AUDIO_FORMAT_2}"
-echo "Audio 3 format: ${AUDIO_FORMAT_3}"
-echo "Output file name: ${OUTPUT_FILE_NAME}"
+    if [ -n "${AUDIO_TRACK_FORMAT}" ]; then
+        echo $(getTrackName ${AUDIO_TRACK_ID})
+    fi
+}
+
+function getTrackName {
+    TRACK_ID=${1}
+    TRACK_ID_MKVINFO=$((TRACK_ID+1))
+
+    MKVINFO_TRACK_BEGIN_LINE=$(mkvinfo "${FILE_PATH}" | grep -n "+ Track number: ${TRACK_ID_MKVINFO}" | awk -F: '{print $1}')
+    MKVINFO_TRACK_END_LINE=$(mkvinfo "${FILE_PATH}" | tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | grep -n "\(| +\||+\)" | head -n 1 | awk -F: '{print $1}')
+    MKVINFO_TRACK_END_LINE=$((MKVINFO_TRACK_BEGIN_LINE+MKVINFO_TRACK_END_LINE-2))
+    MKVINFO_TRACK_LINES_COUNT=$((MKVINFO_TRACK_END_LINE-MKVINFO_TRACK_BEGIN_LINE+1))
+
+    TRACK_LANGUAGE=$(   mkvinfo "${FILE_PATH}" | \
+                        tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | \
+                        head -n ${MKVINFO_TRACK_LINES_COUNT} | \
+                        grep "+ Name:" | \
+                        awk -F: '{print $2}' | \
+                        sed 's/^ *//g')
+
+    echo ${TRACK_LANGUAGE}
+}
 
 function getTrackLanguage {
-    TRACK_ID=$1
+    TRACK_ID=${1}
     TRACK_ID_MKVINFO=$((TRACK_ID+1))
 
     MKVINFO_TRACK_BEGIN_LINE=$(mkvinfo "${FILE_PATH}" | grep -n "+ Track number: ${TRACK_ID_MKVINFO}" | awk -F: '{print $1}')
@@ -85,6 +98,37 @@ function getTrackLanguage {
     echo ${TRACK_LANGUAGE}
 }
 
+function printAudioTrackInfo {
+    AUDIO_TRACK_ID=${1}
+    AUDIO_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
+
+    if [ -n "${AUDIO_FORMAT}" ]; then
+        AUDIO_NAME=$(getAudioTrackName ${AUDIO_TRACK_ID})
+        printf "Audio ${AUDIO_TRACK_ID}: Format=${AUDIO_FORMAT}" >&2
+
+        [ -n "${AUDIO_NAME}" ] && printf ", Name=\"${AUDIO_NAME}\"" >&2
+        printf "\n" >&2
+    fi
+}
+
+echo "Gathering file info for ${FILE_PATH} ..."
+CONTAINER_FORMAT=$(mkvmerge -i "${FILE_PATH}" | head -n 1 | awk -F: '{print $3}' | sed 's/ //g')
+VIDEO_FORMAT=$(getVideoTrackFormat)
+AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
+AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
+AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
+AUDIO_NAME_1=$(getAudioTrackName 1)
+AUDIO_NAME_2=$(getAudioTrackName 2)
+AUDIO_NAME_3=$(getAudioTrackName 3)
+SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
+
+echo "Input file name: ${FILE_NAME}"
+echo "Video format: ${VIDEO_FORMAT}"
+printAudioTrackInfo 1
+printAudioTrackInfo 2
+printAudioTrackInfo 3
+echo "Output file name: ${OUTPUT_FILE_NAME}"
+exit
 function isAudioFormatAcceptable {
     AUDIO_FORMAT_TO_CHECK="$*"
 
