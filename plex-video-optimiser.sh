@@ -15,13 +15,14 @@ FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\.mkv$//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(BAE\|BLUTONiUM\|cakes\|CasStudio\|CHD\|decibeL\|EbP\|ETRG\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(BAE\|BluHD\|BLUTONiUM\|cakes\|CasStudio\|CHD\|decibeL\|EbP\|ETRG\|FREEHK\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|ZON3\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(720p\|1080p\|2160p\|4K\|UHD\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|HEVC\|x26[45]\|[Hh]\.*26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|[Dd][Xx][Vv][Aa]\|HEVC\|x26[45]\|[Hh]\.*26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Amazon\|AMZN\|Disney\|Vimeo\|[Ww][Ee][Bb]\(-DL\)*\|WEBRip\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(REPACK\|Remux\|REMUX\|RoSubbed\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AC3\|AAC2\.0\|Atmos\|DTS\|HD[-\ \.]MA\|DD+\|DD[P]*[567]\.1\|DTSX\|FLAC[-\ \.][567]\.1\|TrueHD\|[567]\.1\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AC3\|AAC2\.0\|Atmos\|DTS-MA\|DTS\|HD[-\ \.]MA\|DD+\|DD[P]*[567]\.1\|DTSX\|FLAC[-\ \.][567]\.1\|TrueHD\|[567]\.1\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Director.s[. ]Cut\|Extended[. ]Edition\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | iconv -f utf-8 -t ascii//translit)
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's@\(?\|!\|\\\|/\)@@g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\./ /g')
@@ -114,12 +115,10 @@ function printAudioTrackInfo {
 echo "Gathering file info for ${FILE_PATH} ..."
 CONTAINER_FORMAT=$(mkvmerge -i "${FILE_PATH}" | head -n 1 | awk -F: '{print $3}' | sed 's/ //g')
 VIDEO_FORMAT=$(getVideoTrackFormat)
-AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
-AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
-AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
 AUDIO_NAME_1=$(getAudioTrackName 1)
 AUDIO_NAME_2=$(getAudioTrackName 2)
 AUDIO_NAME_3=$(getAudioTrackName 3)
+AUDIO_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": audio" -c)
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
 echo "Input file name: ${FILE_NAME}"
@@ -128,7 +127,7 @@ printAudioTrackInfo 1
 printAudioTrackInfo 2
 printAudioTrackInfo 3
 echo "Output file name: ${OUTPUT_FILE_NAME}"
-exit
+
 function isAudioFormatAcceptable {
     AUDIO_FORMAT_TO_CHECK="$*"
 
@@ -136,6 +135,31 @@ function isAudioFormatAcceptable {
        [[ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ]] ||
        [[ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ]] ||
        [[ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]]; then
+        return 0 # True
+    else
+        return 1 # False
+    fi
+}
+
+function isAudioTrackFormatOk {
+    AUDIO_TRACK_ID=${1}
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
+
+    if [[ "${AUDIO_TRACK_FORMAT}" == "AAC" ]] ||
+       [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]] ||
+       [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]] ||
+       [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
+        return 0 # True
+    else
+        return 1 # False
+    fi
+}
+
+function isAudioTrackCommentary {
+    AUDIO_TRACK_ID=${1}
+    AUDIO_TRACK_NAME=$(getAudioTrackName ${AUDIO_TRACK_ID})
+
+    if [[ "${AUDIO_TRACK_NAME}" == "Commentary" ]]; then
         return 0 # True
     else
         return 1 # False
@@ -151,16 +175,54 @@ function getVideoFfmpegArgs {
 }
 
 function getAudioFfmpegArgs {
-    if isAudioFormatAcceptable ${AUDIO_FORMAT_1} ; then
-        echo ""
-    elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ -z "${AUDIO_FORMAT_3}" ]; then
-        echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
-    elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ ! -z "${AUDIO_FORMAT_3}" ]; then
-        echo "-map 0:a:1 -c:a:0 copy -map 0:a:2 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
-    elif isAudioFormatAcceptable ${AUDIO_FORMAT_3} ; then
-        echo "-map 0:a:2 -c:a:0 copy -map 0:a:1 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
+    AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
+    AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
+    AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
+
+    if [ ${AUDIO_TRACKS_COUNT} == 1 ]; then
+        if ! isAudioTrackFormatOk 1; then
+            echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+        fi
+    elif [ ${AUDIO_TRACKS_COUNT} == 2 ]; then
+        if isAudioTrackFormatOk 1 && isAudioTrackFormatOk 2; then
+            if isAudioTrackCommentary 1 ; then
+                echo "-map 0:a:1 -c:a:0 copy -map -0:a:1"
+            elif isAudioTrackCommentary 2; then
+                echo "-map 0:a:0 -c:a:0 copy -map -0:a:1"
+            fi
+        elif isAudioTrackFormatOk 1 && ! isAudioTrackFormatOk 2; then
+            if isAudioTrackCommentary 1 ; then
+                echo "-map 0:a:1 -c:a:0 aac -map 0:a:1 -c:a:1 copy"
+            elif isAudioTrackCommentary 2; then
+                echo "-map 0:a:0 -c:a:0 copy -map -0:a:1"
+            fi
+        elif ! isAudioTrackFormatOk 1 && isAudioTrackFormatOk 2; then
+            if isAudioTrackCommentary 1 ; then
+                echo "-map 0:a:1 -c:a:0 copy -map -0:a:1"
+            elif isAudioTrackCommentary 2; then
+                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
+            else
+                echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
+            fi
+        elif ! isAudioTrackFormatOk 1 && ! isAudioTrackFormatOk 2; then
+            if isAudioTrackCommentary 1 ; then
+                echo "-map 0:a:1 -c:a:0 aac -map 0:a:1 -c:a:1 copy -map -0:a:1"
+            elif isAudioTrackCommentary 2; then
+                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
+            else
+                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
+            fi
+        fi
     else
-        echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+        if isAudioFormatAcceptable ${AUDIO_FORMAT_1} ; then
+            echo ""
+        elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ ! -z "${AUDIO_FORMAT_3}" ]; then
+            echo "-map 0:a:1 -c:a:0 copy -map 0:a:2 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
+        elif isAudioFormatAcceptable ${AUDIO_FORMAT_3} ; then
+            echo "-map 0:a:2 -c:a:0 copy -map 0:a:1 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
+        else
+            echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+        fi
     fi
 }
 
@@ -172,7 +234,7 @@ if [ -n "${VIDEO_FFMPEG_ARGUMENTS}" ]; then
     IS_OPTIMISABLE="TRUE"
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${VIDEO_FFMPEG_ARGUMENTS}"
 else
-    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:v -c:v copy"
+    FFMPEG_ARGUMENTS="-map 0:v:0 -c:v:0 copy"
 fi
 
 if [ -n "${AUDIO_FFMPEG_ARGUMENTS}" ]; then
@@ -261,6 +323,8 @@ if [ "${IS_OPTIMISABLE}" == "TRUE" ]; then
 
     du -sh "${FILE_PATH}"
     mkvmerge -i "${FILE_PATH}"
+
+    FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${CLEANUP_FFMPEG_ARGUMENTS}"
 
     if [ ! -z "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
         echo "Extracting the subtitles..."
