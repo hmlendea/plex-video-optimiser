@@ -15,7 +15,7 @@ FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\.mkv$//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|cakes\|CasStudio\|CHD\|CtrlHD\|decibeL\|EbP\|ETRG\|FREEHK\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CtrlHD\|decibeL\|EbP\|ETRG\|FREEHK\|GOLDIES\|TrollUHD\|FraMeSToR\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(720p\|1080p\|2160[p]*\|4K\|UHD\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|[Dd][Xx][Vv][Aa]\|HEVC\|[xX]26[45]\|[Hh]\.*26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\|VC-1\)//g')
@@ -132,13 +132,13 @@ echo "Output file name: ${OUTPUT_FILE_NAME}"
 function isAudioFormatAcceptable {
     AUDIO_FORMAT_TO_CHECK="$*"
 
-    if [[ "${AUDIO_FORMAT_TO_CHECK}" == "AAC" ]] ||
-       [[ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ]] ||
-       [[ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ]] ||
-       [[ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]]; then
-        return 0 # True
+    if [[ "${AUDIO_FORMAT_TO_CHECK}" == "AAC" ]] \
+    || [[ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ]] \
+    || [[ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ]] \
+    || [[ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]]; then
+        return true # True
     else
-        return 1 # False
+        return false # False
     fi
 }
 
@@ -146,10 +146,10 @@ function isAudioTrackFormatOk {
     AUDIO_TRACK_ID=${1}
     AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
 
-    if [[ "${AUDIO_TRACK_FORMAT}" == "AAC" ]] ||
-       [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]] ||
-       [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]] ||
-       [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
+    if [[ "${AUDIO_TRACK_FORMAT}" == "AAC" ]] \
+    || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]] \
+    || [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]]; then
+#   || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
         return 0 # True
     else
         return 1 # False
@@ -168,8 +168,9 @@ function isAudioTrackCommentary {
 }
 
 function getVideoFfmpegArgs {
-    if [[ "${VIDEO_FORMAT}" == "VP9" ]]; then
-        echo "-map 0:v:0 -c:v:0 mpeg4"
+    if [[ "${VIDEO_FORMAT}" == "AV1" ]] \
+    || [[ "${VIDEO_FORMAT}" == "VP9" ]]; then
+        echo "-map 0:v:0 -c:v:0 h264"
     else
         echo ""
     fi
@@ -188,8 +189,6 @@ function getAudioFfmpegArgs {
         if isAudioTrackFormatOk 1 && isAudioTrackFormatOk 2; then
             if isAudioTrackCommentary 1 ; then
                 echo "-map 0:a:1 -c:a:0 copy -map -0:a:1"
-            elif isAudioTrackCommentary 2; then
-                echo "-map 0:a:0 -c:a:0 copy -map -0:a:1"
             fi
         elif isAudioTrackFormatOk 1 && ! isAudioTrackFormatOk 2; then
             if isAudioTrackCommentary 1 ; then
@@ -246,8 +245,10 @@ else
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
 fi
 
-if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then echo "File format needs conversion!"
-    IS_OPTIMISABLE="TRUE" FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
+if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then
+    echo "File format needs conversion!"
+    IS_OPTIMISABLE="TRUE"
+    #FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
 fi
 
 if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
@@ -362,10 +363,10 @@ if [ "${IS_OPTIMISABLE}" == "TRUE" ]; then
     fi
 
     if [ "${FINISHED_OPTIMISING}" == "TRUE" ]; then
-        read -p "Do you want to replace the original file? [y/N] " -n 1 -r
+        read -p "Do you want to replace the original file? [Y/n] " -n 1 -r
         echo
 
-        if [[ ${REPLY} =~ ^[Yy]$ ]]; then
+        if [[ ${REPLY} =~ ^[Yy]$ ]] || [ -z "${REPLY}" ]; then
             rm "${FILE_PATH}"
             mv "${OUTPUT_TEMP_FILE}" "${OUTPUT_FILE}"
         fi
