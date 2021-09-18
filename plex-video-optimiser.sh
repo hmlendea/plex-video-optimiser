@@ -249,6 +249,7 @@ if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; 
     echo "File format needs conversion!"
     IS_OPTIMISABLE="TRUE"
     #FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
+    FFMPEG_ARGUMENTS=""
 fi
 
 if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
