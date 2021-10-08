@@ -15,7 +15,7 @@ FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\.mkv$//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CtrlHD\|decibeL\|EbP\|ETRG\|FraMeSToR\|FREEHK\|GOLDIES\|iNTERNAL\|TENEIGHTY\|TrollUHD\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CRiSC\|CtrlHD\|decibeL\|EbP\|ETRG\|FraMeSToR\|FREEHK\|GOLDIES\|iNTERNAL\|TENEIGHTY\|TrollUHD\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(720p\|1080p\|2160[p]*\|4K\|UHD\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|[Dd][Xx][Vv][Aa]\|HEVC\|[xX]26[45]\|[Hh]\.*26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\|VC-1\)//g')
@@ -136,9 +136,9 @@ function isAudioFormatAcceptable {
     || [[ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ]] \
     || [[ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ]] \
     || [[ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]]; then
-        return true # True
+        return 0 # True
     else
-        return false # False
+        return 1 # False
     fi
 }
 
