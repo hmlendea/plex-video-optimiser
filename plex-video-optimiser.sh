@@ -22,7 +22,7 @@ OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|[Dd][Xx][Vv]
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Amazon\|AMZN\|Disney\|Vimeo\|[Ww][Ee][Bb]\(-DL\)*\|WEBRip\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Extended Edition\|Extended\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(REPACK\|Remux\|REMUX\|RoSubbed\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AC3\|AAC2\.0\|Atmos\|DTS-MA\|DTS\|HD[-\ \.]MA\|LPCM\|DD+\|DD[P]*[567]\.1\|DTSX\|FLAC[-\ \.][567]\.1\|TrueHD\|[567]\.1\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AC3\|AAC2\.0\|Atmos\|DTS-MA\|DTS-X\|DTS\|HD[-\ \.]MA\|LPCM\|DD+\|DD[P]*[567]\.1\|DTSX\|FLAC[-\ \.][567]\.1\|TrueHD\|[567]\.1\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Director.s[. ]Cut\|Extended[. ]Edition\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | iconv -f utf-8 -t ascii//translit)
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's@\(?\|!\|\\\|/\)@@g')
@@ -160,7 +160,7 @@ function isAudioTrackCommentary {
     AUDIO_TRACK_ID=${1}
     AUDIO_TRACK_NAME=$(getAudioTrackName ${AUDIO_TRACK_ID})
 
-    if [[ "${AUDIO_TRACK_NAME}" == "Commentary" ]]; then
+    if [ $(echo "${AUDIO_TRACK_NAME}" | grep -c "[Cc]ommentary") -ge 1 ]; then
         return 0 # True
     else
         return 1 # False
