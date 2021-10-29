@@ -146,10 +146,14 @@ function isAudioTrackFormatOk {
     AUDIO_TRACK_ID=${1}
     AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
 
+
     if [[ "${AUDIO_TRACK_FORMAT}" == "AAC" ]] \
-    || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]] \
-    || [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]]; then
+    || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]]; then
 #   || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
+        return 0 # True
+    # Special case - AC-3 will be accepted only if it's the first track
+    elif [ "${AUDIO_TRACK_ID}" == 1 ] \
+      && [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]]; then
         return 0 # True
     else
         return 1 # False
