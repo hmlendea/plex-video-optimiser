@@ -1,6 +1,12 @@
 #!/bin/bash
 
 FILE_PATH="$*"
+
+if [ ! -f "${FILE_PATH}" ]; then
+    echo "Cannot access '${FILE_PATH}': No such file or directory"
+    exit 1
+fi
+
 FILE_PATH_WITHOUT_EXTENSION="${FILE_PATH%.*}"
 FILE_BASENAME=$(basename -- "$FILE_PATH")
 FILE_EXTENSION="${FILE_BASENAME##*.}"
