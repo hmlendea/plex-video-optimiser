@@ -159,7 +159,7 @@ function isAudioTrackFormatOk {
 #   || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
         return 0 # True
     # Special case - AC-3 will be accepted only if it's the first track
-    elif [ "${AUDIO_TRACK_ID}" == 1 ] \
+    elif [ "${AUDIO_TRACK_INDEX}" == 0 ] \
       && [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]]; then
         return 0 # True
     else
@@ -215,7 +215,7 @@ function getAudioFfmpegArgs {
             FFMPEG_AUDIO_TRACK_ARGS="-map 0:a:${AUDIO_TRACK_INDEX} -c:a:0 copy"
             OUTPUT_AUDIO_TRACKS_COUNT=1
             COPIED_AUDIO_TRACK_INDEX=${AUDIO_TRACK_INDEX}
-            [[ "${AUDIO_TRACK_INDEX}" != "0" ]] && MODIFICATIONS_APPLIED=0
+            [[ "${AUDIO_TRACK_INDEX}" != "0" ]] && MODIFICATIONS_APPLIED=true
             break
         fi
     done
@@ -225,7 +225,7 @@ function getAudioFfmpegArgs {
             if ! isAudioTrackCommentary ${AUDIO_TRACK_INDEX}; then
                 FFMPEG_AUDIO_TRACK_ARGS="-map 0:a:${AUDIO_TRACK_INDEX} -c:a:0 aac"
                 OUTPUT_AUDIO_TRACKS_COUNT=1
-                MODIFICATIONS_APPLIED=0
+                MODIFICATIONS_APPLIED=true
                 break
             fi
         done
@@ -238,7 +238,7 @@ function getAudioFfmpegArgs {
         [[ "${AUDIO_TRACK_INDEX}" == "${COPIED_AUDIO_TRACK_INDEX}" ]] && continue
 
         if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX}; then
-            MODIFICATIONS_APPLIED=0
+            MODIFICATIONS_APPLIED=true
         else
             FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map 0:a:${AUDIO_TRACK_INDEX} -c:a:${OUTPUT_AUDIO_TRACKS_COUNT} copy"
             OUTPUT_AUDIO_TRACKS_COUNT=$((OUTPUT_AUDIO_TRACKS_COUNT+1))
