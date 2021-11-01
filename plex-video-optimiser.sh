@@ -171,6 +171,23 @@ function isAudioTrackCommentary {
     fi
 }
 
+function isAudioTrackDiscardable {
+    AUDIO_TRACK_ID=${1}
+
+    $(isAudioTrackCommentary "${AUDIO_TRACK_ID}") && return 0 # True
+
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
+
+    if [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]] \
+    || [[ "${AUDIO_TRACK_FORMAT}" == "E-AC-3" ]] \
+    || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]] \
+    || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
+        return 0 # True
+    else
+        return 1 # False
+    fi
+}
+
 function getVideoFfmpegArgs {
     if [[ "${VIDEO_FORMAT}" == "AV1" ]] \
     || [[ "${VIDEO_FORMAT}" == "VP9" ]]; then
@@ -184,43 +201,48 @@ function getAudioFfmpegArgs {
     AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
     AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
     AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
+    AUDIO_FORMAT_4=$(getAudioTrackFormat 4)
 
     if [ ${AUDIO_TRACKS_COUNT} == 1 ]; then
         if ! isAudioTrackFormatOk 1; then
-            echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+            if isAudioTrackDiscardable 1; then
+                echo "-map 0:a:0 -c:a:0 aac"
+            else
+                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
+            fi
         fi
     elif [ ${AUDIO_TRACKS_COUNT} == 2 ]; then
         if isAudioTrackFormatOk 1 && isAudioTrackFormatOk 2; then
-            if isAudioTrackCommentary 1 ; then
+            if isAudioTrackDiscardable 1 ; then
                 echo "-map 0:a:1 -c:a:0 copy -map -0:a:1"
             fi
         elif isAudioTrackFormatOk 1 && ! isAudioTrackFormatOk 2; then
-            if isAudioTrackCommentary 1 ; then
+            if isAudioTrackDiscardable 1 ; then
                 echo "-map 0:a:1 -c:a:0 aac -map 0:a:1 -c:a:1 copy"
-            elif isAudioTrackCommentary 2; then
+            elif isAudioTrackDiscardable 2; then
                 echo "-map 0:a:0 -c:a:0 copy -map -0:a:1"
             fi
         elif ! isAudioTrackFormatOk 1 && isAudioTrackFormatOk 2; then
-            if isAudioTrackCommentary 1 ; then
+            if isAudioTrackDiscardable 1 ; then
                 echo "-map 0:a:1 -c:a:0 copy -map -0:a:1"
-            elif isAudioTrackCommentary 2; then
+            elif isAudioTrackDiscardable 2; then
                 echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
             else
                 echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
             fi
         elif ! isAudioTrackFormatOk 1 && ! isAudioTrackFormatOk 2; then
-            if isAudioTrackCommentary 1 ; then
+            if isAudioTrackDiscardable 1 ; then
                 echo "-map 0:a:1 -c:a:0 aac -map 0:a:1 -c:a:1 copy -map -0:a:1"
-            elif isAudioTrackCommentary 2; then
+            elif isAudioTrackDiscardable 2; then
                 echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
             else
                 echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
             fi
         fi
-    else
+    elif [ ${AUDIO_TRACKS_COUNT} == 3 ]; then
         if isAudioFormatAcceptable ${AUDIO_FORMAT_1} ; then
             echo ""
-        elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ ! -z "${AUDIO_FORMAT_3}" ]; then
+        elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ -n "${AUDIO_FORMAT_3}" ]; then
             echo "-map 0:a:1 -c:a:0 copy -map 0:a:2 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
         elif isAudioFormatAcceptable ${AUDIO_FORMAT_3} ; then
             echo "-map 0:a:2 -c:a:0 copy -map 0:a:1 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
