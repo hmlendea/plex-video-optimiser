@@ -45,25 +45,27 @@ function getVideoTrackFormat {
 }
 
 function getAudioTrackFormat {
-    TRACK_NR=${1}
+    AUDIO_TRACK_INDEX="${1}"
+    TRACK_ID=$((AUDIO_TRACK_INDEX+1))
     AUDIO_TRACKS_COUNT=$(   mkvmerge -i "${FILE_PATH}" | \
                             grep -E "Track ID [0-9]+: audio" | \
                             wc -l)
 
-    if [ ${AUDIO_TRACKS_COUNT} -ge ${TRACK_NR} ]; then
+    if [ ${AUDIO_TRACKS_COUNT} -ge ${TRACK_ID} ]; then
         echo $( mkvmerge -i "${FILE_PATH}" | \
                 grep -E "Track ID [0-9]+: audio" | \
-                head -n ${TRACK_NR} | tail -n 1 | \
+                head -n ${TRACK_ID} | tail -n 1 | \
                 awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
     fi
 }
 
 function getAudioTrackName {
-    AUDIO_TRACK_ID=${1}
-    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
+    AUDIO_TRACK_INDEX=${1}
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_INDEX})
+    TRACK_ID=$((AUDIO_TRACK_INDEX+1))
 
     if [ -n "${AUDIO_TRACK_FORMAT}" ]; then
-        echo $(getTrackName ${AUDIO_TRACK_ID})
+        echo $(getTrackName ${TRACK_ID})
     fi
 }
 
@@ -101,12 +103,12 @@ function getTrackLanguage {
 }
 
 function printAudioTrackInfo {
-    AUDIO_TRACK_ID=${1}
-    AUDIO_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
+    AUDIO_TRACK_INDEX=${1}
+    AUDIO_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_INDEX})
 
     if [ -n "${AUDIO_FORMAT}" ]; then
-        AUDIO_NAME=$(getAudioTrackName ${AUDIO_TRACK_ID})
-        printf "Audio ${AUDIO_TRACK_ID}: Format=${AUDIO_FORMAT}" >&2
+        AUDIO_NAME=$(getAudioTrackName ${AUDIO_TRACK_INDEX})
+        printf "Audio ${AUDIO_TRACK_INDEX}: Format=${AUDIO_FORMAT}" >&2
 
         [ -n "${AUDIO_NAME}" ] && printf ", Name=\"${AUDIO_NAME}\"" >&2
         printf "\n" >&2
@@ -116,17 +118,17 @@ function printAudioTrackInfo {
 echo "Gathering file info for ${FILE_PATH} ..."
 CONTAINER_FORMAT=$(mkvmerge -i "${FILE_PATH}" | head -n 1 | awk -F: '{print $3}' | sed 's/ //g')
 VIDEO_FORMAT=$(getVideoTrackFormat)
-AUDIO_NAME_1=$(getAudioTrackName 1)
-AUDIO_NAME_2=$(getAudioTrackName 2)
-AUDIO_NAME_3=$(getAudioTrackName 3)
 AUDIO_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": audio" -c)
+
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
 echo "Input file name: ${FILE_NAME}"
 echo "Video format: ${VIDEO_FORMAT}"
-printAudioTrackInfo 1
-printAudioTrackInfo 2
-printAudioTrackInfo 3
+
+for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < ${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
+    printAudioTrackInfo ${AUDIO_TRACK_INDEX}
+done
+
 echo "Output file name: ${OUTPUT_FILE_NAME}"
 
 function isAudioFormatAcceptable {
@@ -143,9 +145,8 @@ function isAudioFormatAcceptable {
 }
 
 function isAudioTrackFormatOk {
-    AUDIO_TRACK_ID=${1}
-    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
-
+    AUDIO_TRACK_INDEX=${1}
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_INDEX})
 
     if [[ "${AUDIO_TRACK_FORMAT}" == "AAC" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]]; then
@@ -161,8 +162,8 @@ function isAudioTrackFormatOk {
 }
 
 function isAudioTrackCommentary {
-    AUDIO_TRACK_ID=${1}
-    AUDIO_TRACK_NAME=$(getAudioTrackName ${AUDIO_TRACK_ID})
+    AUDIO_TRACK_INDEX=${1}
+    AUDIO_TRACK_NAME=$(getAudioTrackName ${AUDIO_TRACK_INDEX})
 
     if [ $(echo "${AUDIO_TRACK_NAME}" | grep -c "[Cc]ommentary") -ge 1 ]; then
         return 0 # True
@@ -172,11 +173,11 @@ function isAudioTrackCommentary {
 }
 
 function isAudioTrackDiscardable {
-    AUDIO_TRACK_ID=${1}
+    AUDIO_TRACK_INDEX="${1}"
 
-    $(isAudioTrackCommentary "${AUDIO_TRACK_ID}") && return 0 # True
+    $(isAudioTrackCommentary "${AUDIO_TRACK_INDEX}") && return 0 # True
 
-    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_ID})
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
 
     if [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "E-AC-3" ]] \
@@ -198,58 +199,48 @@ function getVideoFfmpegArgs {
 }
 
 function getAudioFfmpegArgs {
-    AUDIO_FORMAT_1=$(getAudioTrackFormat 1)
-    AUDIO_FORMAT_2=$(getAudioTrackFormat 2)
-    AUDIO_FORMAT_3=$(getAudioTrackFormat 3)
-    AUDIO_FORMAT_4=$(getAudioTrackFormat 4)
+    local FFMPEG_AUDIO_TRACK_ARGS=""
+    local OUTPUT_AUDIO_TRACKS_COUNT=0
+    local COPIED_AUDIO_TRACK_INDEX=-1
+    local MODIFICATIONS_APPLIED=false
 
-    if [ ${AUDIO_TRACKS_COUNT} == 1 ]; then
-        if ! isAudioTrackFormatOk 1; then
-            if isAudioTrackDiscardable 1; then
-                echo "-map 0:a:0 -c:a:0 aac"
-            else
-                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
-            fi
+    for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
+        if isAudioTrackFormatOk ${AUDIO_TRACK_INDEX}; then
+            FFMPEG_AUDIO_TRACK_ARGS="-map 0:a:${AUDIO_TRACK_INDEX} -c:a:0 copy"
+            OUTPUT_AUDIO_TRACKS_COUNT=1
+            COPIED_AUDIO_TRACK_INDEX=${AUDIO_TRACK_INDEX}
+            [[ "${AUDIO_TRACK_INDEX}" != "0" ]] && MODIFICATIONS_APPLIED=0
+            break
         fi
-    elif [ ${AUDIO_TRACKS_COUNT} == 2 ]; then
-        if isAudioTrackFormatOk 1 && isAudioTrackFormatOk 2; then
-            if isAudioTrackDiscardable 1 ; then
-                echo "-map 0:a:1 -c:a:0 copy -map -0:a:1"
+    done
+
+    if [ -z "${FFMPEG_AUDIO_TRACK_ARGS}" ]; then
+        for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
+            if ! isAudioTrackCommentary ${AUDIO_TRACK_INDEX}; then
+                FFMPEG_AUDIO_TRACK_ARGS="-map 0:a:${AUDIO_TRACK_INDEX} -c:a:0 aac"
+                OUTPUT_AUDIO_TRACKS_COUNT=1
+                MODIFICATIONS_APPLIED=0
+                break
             fi
-        elif isAudioTrackFormatOk 1 && ! isAudioTrackFormatOk 2; then
-            if isAudioTrackDiscardable 1 ; then
-                echo "-map 0:a:1 -c:a:0 aac -map 0:a:1 -c:a:1 copy"
-            elif isAudioTrackDiscardable 2; then
-                echo "-map 0:a:0 -c:a:0 copy -map -0:a:1"
-            fi
-        elif ! isAudioTrackFormatOk 1 && isAudioTrackFormatOk 2; then
-            if isAudioTrackDiscardable 1 ; then
-                echo "-map 0:a:1 -c:a:0 copy -map -0:a:1"
-            elif isAudioTrackDiscardable 2; then
-                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
-            else
-                echo "-map 0:a:1 -c:a:0 copy -map 0:a:0 -c:a:1 copy"
-            fi
-        elif ! isAudioTrackFormatOk 1 && ! isAudioTrackFormatOk 2; then
-            if isAudioTrackDiscardable 1 ; then
-                echo "-map 0:a:1 -c:a:0 aac -map 0:a:1 -c:a:1 copy -map -0:a:1"
-            elif isAudioTrackDiscardable 2; then
-                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
-            else
-                echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy -map -0:a:1"
-            fi
-        fi
-    elif [ ${AUDIO_TRACKS_COUNT} == 3 ]; then
-        if isAudioFormatAcceptable ${AUDIO_FORMAT_1} ; then
-            echo ""
-        elif isAudioFormatAcceptable ${AUDIO_FORMAT_2} && [ -n "${AUDIO_FORMAT_3}" ]; then
-            echo "-map 0:a:1 -c:a:0 copy -map 0:a:2 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
-        elif isAudioFormatAcceptable ${AUDIO_FORMAT_3} ; then
-            echo "-map 0:a:2 -c:a:0 copy -map 0:a:1 -c:a:1 copy -map 0:a:0 -c:a:2 copy"
-        else
-            echo "-map 0:a:0 -c:a:0 aac -map 0:a:0 -c:a:1 copy"
-        fi
+        done
     fi
+
+    for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
+        #if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX} ; then
+        #    FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map -0:a:${AUDIO_TRACK_INDEX}"
+        #else
+        [[ "${AUDIO_TRACK_INDEX}" == "${COPIED_AUDIO_TRACK_INDEX}" ]] && continue
+
+        if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX}; then
+            MODIFICATIONS_APPLIED=0
+        else
+            FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map 0:a:${AUDIO_TRACK_INDEX} -c:a:${OUTPUT_AUDIO_TRACKS_COUNT} copy"
+            OUTPUT_AUDIO_TRACKS_COUNT=$((OUTPUT_AUDIO_TRACKS_COUNT+1))
+        fi
+    done
+
+#    [[ "${FFMPEG_AUDIO_TRACK_ARGS}" != "-map 0:a:0 -c:a:0 copy" ]] && echo "${FFMPEG_AUDIO_TRACK_ARGS}"
+    ${MODIFICATIONS_APPLIED} && echo "${FFMPEG_AUDIO_TRACK_ARGS}"
 }
 
 VIDEO_FFMPEG_ARGUMENTS=$(getVideoFfmpegArgs)
