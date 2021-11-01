@@ -158,10 +158,12 @@ function isAudioTrackFormatOk {
     || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]]; then
 #   || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
         return 0 # True
-    # Special case - AC-3 will be accepted only if it's the first track
-    elif [ "${AUDIO_TRACK_INDEX}" == 0 ] \
-      && [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]]; then
-        return 0 # True
+    # Special case - AC-3 will be accepted only if it's the first or second track
+    elif [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]]; then
+        if [ "${AUDIO_TRACK_INDEX}" == 0 ] \
+        || [ "${AUDIO_TRACK_INDEX}" == 1 ]; then
+            return 0 # True
+        fi
     else
         return 1 # False
     fi
