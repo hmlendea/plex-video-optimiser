@@ -15,8 +15,8 @@ FILE_DIRECTORY=$(dirname "${FILE_PATH}")
 
 SESSION_ID=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
-IS_TVSHOW_EPISODE="FALSE"
-IS_OPTIMISABLE="FALSE"
+IS_TVSHOW_EPISODE=false
+IS_OPTIMISABLE=false
 FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
@@ -40,7 +40,7 @@ OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\ +$//g')
 OUTPUT_FILE_PATH_WITHOUT_EXTENSION="${FILE_DIRECTORY}/${OUTPUT_FILE_NAME}"
 
 if [ $(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c) -gt 0 ]; then
-    IS_TVSHOW_EPISODE="TRUE"
+    IS_TVSHOW_EPISODE=true
 fi
 
 function getVideoTrackFormat {
@@ -256,7 +256,7 @@ AUDIO_FFMPEG_ARGUMENTS=$(getAudioFfmpegArgs)
 
 if [ -n "${VIDEO_FFMPEG_ARGUMENTS}" ]; then
     echo "Video track needs conversion!"
-    IS_OPTIMISABLE="TRUE"
+    IS_OPTIMISABLE=true
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${VIDEO_FFMPEG_ARGUMENTS}"
 else
     FFMPEG_ARGUMENTS="-map 0:v:0 -c:v:0 copy"
@@ -264,7 +264,7 @@ fi
 
 if [ -n "${AUDIO_FFMPEG_ARGUMENTS}" ]; then
     echo "Audio track needs conversion!"
-    IS_OPTIMISABLE="TRUE"
+    IS_OPTIMISABLE=true
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${AUDIO_FFMPEG_ARGUMENTS}"
 else
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
@@ -272,14 +272,14 @@ fi
 
 if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; then
     echo "File format needs conversion!"
-    IS_OPTIMISABLE="TRUE"
+    IS_OPTIMISABLE=true
     #FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map 0:a -c:a copy"
     FFMPEG_ARGUMENTS=""
 fi
 
 if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
     echo "Subtitles need removal!"
-    IS_OPTIMISABLE="TRUE"
+    IS_OPTIMISABLE=true
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map -0:s"
 
     SUBTITLE_TRACKS=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "\(SRT\|SubStationAlpha\)" | awk '{print $3}' | awk -F: '{print $1}')
@@ -341,7 +341,7 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
     fi
 fi
 
-if [ "${IS_OPTIMISABLE}" == "TRUE" ]; then
+if ${IS_OPTIMISABLE}; then
     OUTPUT_TEMP_FILE="${OUTPUT_FILE_PATH_WITHOUT_EXTENSION}.OPTIMISED.mkv"
     OUTPUT_FILE="${OUTPUT_FILE_PATH_WITHOUT_EXTENSION}.mkv"
 
