@@ -7,6 +7,9 @@ if [ ! -f "${FILE_PATH}" ]; then
     exit 1
 fi
 
+# Options
+KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS=false
+
 FILE_PATH_WITHOUT_EXTENSION="${FILE_PATH%.*}"
 FILE_BASENAME=$(basename -- "$FILE_PATH")
 FILE_EXTENSION="${FILE_BASENAME##*.}"
@@ -233,19 +236,23 @@ function getAudioFfmpegArgs {
         done
     fi
 
-    for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
-        #if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX} ; then
-        #    FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map -0:a:${AUDIO_TRACK_INDEX}"
-        #else
-        [[ "${AUDIO_TRACK_INDEX}" == "${COPIED_AUDIO_TRACK_INDEX}" ]] && continue
+    if ${IS_TVSHOW_EPISODE} && ${KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS}; then
+        for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
+            #if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX} ; then
+            #    FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map -0:a:${AUDIO_TRACK_INDEX}"
+            #else
+            [[ "${AUDIO_TRACK_INDEX}" == "${COPIED_AUDIO_TRACK_INDEX}" ]] && continue
 
-        if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX}; then
-            MODIFICATIONS_APPLIED=true
-        else
-            FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map 0:a:${AUDIO_TRACK_INDEX} -c:a:${OUTPUT_AUDIO_TRACKS_COUNT} copy"
-            OUTPUT_AUDIO_TRACKS_COUNT=$((OUTPUT_AUDIO_TRACKS_COUNT+1))
-        fi
-    done
+            if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX}; then
+                MODIFICATIONS_APPLIED=true
+            else
+                FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map 0:a:${AUDIO_TRACK_INDEX} -c:a:${OUTPUT_AUDIO_TRACKS_COUNT} copy"
+                OUTPUT_AUDIO_TRACKS_COUNT=$((OUTPUT_AUDIO_TRACKS_COUNT+1))
+            fi
+        done
+    fi
+
+    [ ${OUTPUT_AUDIO_TRACKS_COUNT} -ne ${AUDIO_TRACKS_COUNT} ] && MODIFICATIONS_APPLIED=true
 
 #    [[ "${FFMPEG_AUDIO_TRACK_ARGS}" != "-map 0:a:0 -c:a:0 copy" ]] && echo "${FFMPEG_AUDIO_TRACK_ARGS}"
     ${MODIFICATIONS_APPLIED} && echo "${FFMPEG_AUDIO_TRACK_ARGS}"
