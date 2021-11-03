@@ -9,6 +9,7 @@ fi
 
 # Options
 KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS=false
+KEEP_SDH_SUBTITLES=false
 
 FILE_PATH_WITHOUT_EXTENSION="${FILE_PATH%.*}"
 FILE_BASENAME=$(basename -- "$FILE_PATH")
@@ -258,6 +259,31 @@ function getAudioFfmpegArgs {
     ${MODIFICATIONS_APPLIED} && echo "${FFMPEG_AUDIO_TRACK_ARGS}"
 }
 
+function isSubtitleTrackDiscardable {
+    TRACK_ID="${@}"
+
+    if (! ${KEEP_SDH_SUBTITLES}); then
+        [[ "${TRACK_NAME}" == *"SDH"* ]] && return 0 # True
+    fi
+
+    return 1 # False
+}
+
+function getSubtitleLanguage {
+    TRACK_ID="${@}"
+    TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+    TRACK_NAME=$(getTrackName "${TRACK_ID}")
+
+    if [ -z "${TRACK_LANGUAGE}" ]; then
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ee]nglish") -ge 1 ] && TRACK_LANGUAGE="ENG"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ff]rench") -ge 1 ] && TRACK_LANGUAGE="FRE"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Pp]ortuguese") -ge 1 ] && TRACK_LANGUAGE="POR"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]panish") -ge 1 ] && TRACK_LANGUAGE="SPA"
+    fi
+
+    echo "${TRACK_LANGUAGE}"
+}
+
 VIDEO_FFMPEG_ARGUMENTS=$(getVideoFfmpegArgs)
 AUDIO_FFMPEG_ARGUMENTS=$(getAudioFfmpegArgs)
 
@@ -298,8 +324,10 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
         UNKNOWN_LANGUAGE_TRACKS_COUNT=0
 
         for TRACK_ID in ${SUBTITLE_TRACKS}; do
-            TRACK_LANGUAGE=$(getTrackLanguage "${TRACK_ID}")
+            TRACK_LANGUAGE=$(getSubtitleLanguage "${TRACK_ID}")
             TRACK_NAME=$(getTrackName "${TRACK_ID}")
+
+            $(isSubtitleTrackDiscardable "${TRACK_ID}") && continue
 
             if [ -z "${TRACK_LANGUAGE}" ]; then
                 TRACK_LANGUAGE="(unknown)"
@@ -319,8 +347,11 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
             TRACK_LANGUAGES=""
 
             for TRACK_ID in ${SUBTITLE_TRACKS}; do
-                TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+                TRACK_LANGUAGE="$(getSubtitleLanguage ${TRACK_ID})"
                 TRACK_NAME=$(getTrackName "${TRACK_ID}")
+
+                $(isSubtitleTrackDiscardable "${TRACK_ID}") && continue
+
                 DUPLICATIONS=$(echo "${TRACK_LANGUAGES}" | sed 's/,/\n/g' | grep -c "${TRACK_LANGUAGE}")
 
                 if [ ! -z "${TRACK_LANGUAGE}" ]; then
