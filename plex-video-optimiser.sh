@@ -274,12 +274,15 @@ function getSubtitleLanguage {
     local TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
     local TRACK_NAME=$(getTrackName "${TRACK_ID}")
 
-    if [ -z "${TRACK_LANGUAGE}" ]; then
+#    if [ -z "${TRACK_LANGUAGE}" ]; then
+        [ $(echo "${TRACK_NAME}" | grep -c "廣東話\|[Cc]antonese") -ge 1 ] && TRACK_LANGUAGE="YUE"
+        [ $(echo "${TRACK_NAME}" | grep -c "中文\|[Cc]hinese") -ge 1 ] && TRACK_LANGUAGE="CHI"
         [ $(echo "${TRACK_NAME}" | grep -c "[Ee]nglish") -ge 1 ] && TRACK_LANGUAGE="ENG"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ff]rench") -ge 1 ] && TRACK_LANGUAGE="FRE"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Pp]ortuguese") -ge 1 ] && TRACK_LANGUAGE="POR"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]panish") -ge 1 ] && TRACK_LANGUAGE="SPA"
-    fi
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ee]spañol\|[Ss]panish") -ge 1 ] && TRACK_LANGUAGE="SPA"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ff]rançais\|[Ff]rench") -ge 1 ] && TRACK_LANGUAGE="FRE"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Pp]ortuguês\|[Pp]ortuguese") -ge 1 ] && TRACK_LANGUAGE="POR"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Rr]omână\|[Rr]omanian") -ge 1 ] && TRACK_LANGUAGE="RUM"
+#    fi
 
     echo "${TRACK_LANGUAGE}"
 }
@@ -432,10 +435,24 @@ if ${IS_OPTIMISABLE}; then
         echo "Extracting the subtitles..."
         ffmpeg -i "${FILE_PATH}" ${SUBTITLES_FFMPEG_ARGUMENTS}
 
+        # Chinese - Simplified
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI2" "CHI"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI3" "CHI"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI-繁體" "CHI"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI-简体" "CHI-繁體" "CHI"
+
+        # French - France
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "FRE" "FRE-Canada" "FRE"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "FRE-France" "FRE" "FRE"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "FRE-France" "FRE-Canada" "FRE"
+
+        # Portuguese - Portugal
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "POR" "POR-Brasil" "POR"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "POR" "POR-Brazil" "POR"
+
+        # Spanish - Spain
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA" "SPA"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA-Latinoamérica" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA" "SPA"
 
         if [ -f "/usr/bin/fix-subtitle" ]; then
