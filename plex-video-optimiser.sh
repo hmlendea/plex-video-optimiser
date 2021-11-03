@@ -25,7 +25,7 @@ FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\.mkv$//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CRiSC\|CtrlHD\|decibeL\|EbP\|ETRG\|FLUX\|FraMeSToR\|FREEHK\|GOLDIES\|iNTERNAL\|TENEIGHTY\|TrollUHD\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CRiSC\|CtrlHD\|decibeL\|EbP\|ETRG\|FLUX\|FraMeSToR\|FREEHK\|ggez\|GOLDIES\|iNTERNAL\|TENEIGHTY\|TrollUHD\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(720p\|1080p\|2160[p]*\|4K\|UHD\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|DV\|[Dd][Xx][Vv][Aa]\|HEVC\|[xX]26[45]\|[Hh]\.*26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\|VC-1\)//g')
@@ -41,6 +41,7 @@ OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/(*\(19\|20\)[0-9][0-9])*$//
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/-/ /g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\ +/ /g')
 OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\ +$//g')
+OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[Ss]\([0-9][0-9]*\)[Ee]\([0-9][0-9]*\)$/S\1E\2/g')
 OUTPUT_FILE_PATH_WITHOUT_EXTENSION="${FILE_DIRECTORY}/${OUTPUT_FILE_NAME}"
 
 if [ $(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c) -gt 0 ]; then
