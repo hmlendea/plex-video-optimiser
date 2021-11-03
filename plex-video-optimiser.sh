@@ -451,9 +451,12 @@ if ${IS_OPTIMISABLE}; then
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "POR" "POR-Brazil" "POR"
 
         # Spanish - Spain
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA" "SPA-LatinAmerica" "SPA"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA" "SPA-Latinoamérica" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA-Latinoamérica" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA" "SPA"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA-LatinAmerica" "SPA"
 
         if [ -f "/usr/bin/fix-subtitle" ]; then
             for EXTRACTED_SUBTITLE_FILE in "extractedSubtitleFile.${SESSION_ID}."*; do
