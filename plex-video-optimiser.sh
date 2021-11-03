@@ -298,13 +298,17 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
         UNKNOWN_LANGUAGE_TRACKS_COUNT=0
 
         for TRACK_ID in ${SUBTITLE_TRACKS}; do
-            TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+            TRACK_LANGUAGE=$(getTrackLanguage "${TRACK_ID}")
+            TRACK_NAME=$(getTrackName "${TRACK_ID}")
+
             if [ -z "${TRACK_LANGUAGE}" ]; then
                 TRACK_LANGUAGE="(unknown)"
                 UNKNOWN_LANGUAGE_TRACKS_COUNT=$((UNKNOWN_LANGUAGE_TRACKS_COUNT+1))
             fi
 
-            echo "#${TRACK_ID}: ${TRACK_LANGUAGE}"
+            printf "#${TRACK_ID}: ${TRACK_LANGUAGE}"
+            [ -n "${TRACK_NAME}" ] && printf " (${TRACK_NAME})"
+            printf "\n"
         done
 
         read -p "Do you want to save the subtitles before removing them? [Y/n] " -n 1 -r
