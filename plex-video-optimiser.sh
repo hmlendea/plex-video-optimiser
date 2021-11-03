@@ -320,12 +320,19 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
 
             for TRACK_ID in ${SUBTITLE_TRACKS}; do
                 TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+                TRACK_NAME=$(getTrackName "${TRACK_ID}")
                 DUPLICATIONS=$(echo "${TRACK_LANGUAGES}" | sed 's/,/\n/g' | grep -c "${TRACK_LANGUAGE}")
 
                 if [ ! -z "${TRACK_LANGUAGE}" ]; then
                     TRACK_LANGUAGES="${TRACK_LANGUAGES}${TRACK_LANGUAGE},"
+
                     if [ ${DUPLICATIONS} -ge 1 ]; then
-                        TRACK_LANGUAGE=${TRACK_LANGUAGE}$((DUPLICATIONS+1))
+                        if [ -n "${TRACK_NAME}" ]; then
+                            TRACK_LANGUAGE_NAME=$(echo "${TRACK_NAME}" | sed -e 's/^[^(]*//g' -e 's/\s//g' -e 's/[()]//g')
+                            TRACK_LANGUAGE="${TRACK_LANGUAGE}-${TRACK_LANGUAGE_NAME}"
+                        else
+                            TRACK_LANGUAGE="${TRACK_LANGUAGE}$((DUPLICATIONS+1))"
+                        fi
                     fi
                 fi
 
