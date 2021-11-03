@@ -284,6 +284,31 @@ function getSubtitleLanguage {
     echo "${TRACK_LANGUAGE}"
 }
 
+function replaceDuplicatedSubtitles {
+    local SUBTITLE_FILE_NAME="${1}"
+    local LANGUAGE_TO_KEEP="${2}"
+    local LANGUAGE_TO_REMOVE="${3}"
+    local LANGUAGE_NAME="${4}"
+
+    # TODO: Support other formats also
+    local SUBTITLE_FILE_TO_KEEP="${SUBTITLE_FILE_NAME}.${LANGUAGE_TO_KEEP}.srt"
+    local SUBTITLE_FILE_TO_REMOVE="${SUBTITLE_FILE_NAME}.${LANGUAGE_TO_REMOVE}.srt"
+    local SUBTITLE_FILE_OUTPUT="${SUBTITLE_FILE_NAME}.${LANGUAGE_NAME}.srt"
+
+    [ ! -f "${SUBTITLE_FILE_TO_KEEP}" ] && return
+    [ ! -f "${SUBTITLE_FILE_TO_REMOVE}" ] && return
+
+    if [[ "${SUBTITLE_FILE_OUTPUT}" != "${SUBTITLE_FILE_TO_REMOVE}" ]]; then
+        echo "Removing the ${LANGUAGE_TO_REMOVE} subtitle"
+        rm "${SUBTITLE_FILE_TO_REMOVE}"
+    fi
+
+    if [[ "${SUBTITLE_FILE_OUTPUT}" != "${SUBTITLE_FILE_TO_KEEP}" ]]; then
+        echo "Renaming the '${LANGUAGE_TO_KEEP}' subtitle to '${LANGUAGE_NAME}'"
+        mv "${SUBTITLE_FILE_TO_KEEP}" "${SUBTITLE_FILE_OUTPUT}"
+    fi
+}
+
 VIDEO_FFMPEG_ARGUMENTS=$(getVideoFfmpegArgs)
 AUDIO_FFMPEG_ARGUMENTS=$(getAudioFfmpegArgs)
 
@@ -406,6 +431,12 @@ if ${IS_OPTIMISABLE}; then
     if [ ! -z "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
         echo "Extracting the subtitles..."
         ffmpeg -i "${FILE_PATH}" ${SUBTITLES_FFMPEG_ARGUMENTS}
+
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI2" "CHI"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI3" "CHI"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "FRE-France" "FRE" "FRE"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "POR" "POR-Brazil" "POR"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA" "SPA"
 
         if [ -f "/usr/bin/fix-subtitle" ]; then
             for EXTRACTED_SUBTITLE_FILE in "extractedSubtitleFile.${SESSION_ID}."*; do
