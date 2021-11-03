@@ -260,7 +260,7 @@ function getAudioFfmpegArgs {
 }
 
 function isSubtitleTrackDiscardable {
-    TRACK_ID="${@}"
+    local TRACK_ID="${@}"
 
     if (! ${KEEP_SDH_SUBTITLES}); then
         [[ "${TRACK_NAME}" == *"SDH"* ]] && return 0 # True
@@ -270,9 +270,9 @@ function isSubtitleTrackDiscardable {
 }
 
 function getSubtitleLanguage {
-    TRACK_ID="${@}"
-    TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
-    TRACK_NAME=$(getTrackName "${TRACK_ID}")
+    local TRACK_ID="${@}"
+    local TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
+    local TRACK_NAME=$(getTrackName "${TRACK_ID}")
 
     if [ -z "${TRACK_LANGUAGE}" ]; then
         [ $(echo "${TRACK_NAME}" | grep -c "[Ee]nglish") -ge 1 ] && TRACK_LANGUAGE="ENG"
