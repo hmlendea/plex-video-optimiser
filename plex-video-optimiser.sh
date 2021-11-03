@@ -406,6 +406,13 @@ if ${IS_OPTIMISABLE}; then
     if [ ! -z "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
         echo "Extracting the subtitles..."
         ffmpeg -i "${FILE_PATH}" ${SUBTITLES_FFMPEG_ARGUMENTS}
+
+        if [ -f "/usr/bin/fix-subtitle" ]; then
+            for EXTRACTED_SUBTITLE_FILE in "extractedSubtitleFile.${SESSION_ID}."*; do
+                fix-subtitle --noconfirm "${EXTRACTED_SUBTITLE_FILE}"
+            done
+        fi
+
         perl-rename 's/extractedSubtitleFile\.'"${SESSION_ID}"'/'"${OUTPUT_FILE_NAME}"'/g' "${FILE_DIRECTORY}"/*
     fi
 
