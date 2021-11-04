@@ -163,7 +163,7 @@ for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < AUDIO_TRACKS_COUNT; AUDIO_TRACK
         AUDIO_TRACK_NAME=$(getAudioTrackName "${AUDIO_TRACK_INDEX}")
 
         printf "Audio ${AUDIO_TRACK_INDEX}: ${AUDIO_TRACK_FORMAT}"
-        [ -n "${AUDIO_TRACK_NAME}" ] && printf " (${AUDIO_NAME})"
+        [ -n "${AUDIO_TRACK_NAME}" ] && printf " (${AUDIO_TRACK_NAME})"
         printf "\n"
     fi
 done
@@ -212,7 +212,8 @@ function isAudioTrackDiscardable {
     || [[ "${AUDIO_TRACK_FORMAT}" == "AC-3 Dolby Surround EX" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "E-AC-3" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]] \
-    || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
+    || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]] \
+    || [[ "${AUDIO_TRACK_FORMAT}" == "PCM" ]]; then
         return 0 # True
     else
         return 1 # False
@@ -255,7 +256,7 @@ function getAudioFfmpegArgs {
         done
     fi
 
-    if ${IS_TVSHOW_EPISODE} && ${KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS}; then
+    if (! ${IS_TVSHOW_EPISODE}) || ${KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS}; then
         for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < AUDIO_TRACKS_COUNT; AUDIO_TRACK_INDEX++)); do
             #if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX} ; then
             #    FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map -0:a:${AUDIO_TRACK_INDEX}"
