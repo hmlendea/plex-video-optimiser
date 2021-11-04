@@ -12,7 +12,6 @@ KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS=false
 KEEP_FORCED_SUBTITLES=false
 KEEP_SDH_SUBTITLES=false
 
-FILE_PATH_WITHOUT_EXTENSION="${FILE_PATH%.*}"
 FILE_BASENAME=$(basename -- "$FILE_PATH")
 FILE_EXTENSION="${FILE_BASENAME##*.}"
 FILE_NAME="${FILE_BASENAME%.*}"
@@ -25,106 +24,125 @@ IS_OPTIMISABLE=false
 FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\.mkv$//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CRiSC\|CtrlHD\|decibeL\|EbP\|ETRG\|FLUX\|FraMeSToR\|FREEHK\|ggez\|GOLDIES\|iNTERNAL\|TENEIGHTY\|TrollUHD\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(720p\|1080p\|2160[p]*\|4K\|UHD\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AVC\|DV\|[Dd][Xx][Vv][Aa]\|HEVC\|[xX]26[45]\|[Hh]\.*26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\|VC-1\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Amazon\|AMZN\|ATVP\|Disney\|Vimeo\|[Ww][Ee][Bb]\(-DL\)*\|WEBRip\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Extended Edition\|Extended\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(REPACK\|Remux\|REMUX\|RoSubbed\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(AC3\|AAC2\.0\|Atmos\|DTS-MA\|DTS-X\|DTS\|HD[-\ \.]MA\|LPCM\|DD+\|DD[P]*[\.]*[567]\.1\|DTSX\|FLAC[-\ \.][567]\.1\|TrueHD\|[567]\.1\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[-\ \.]*\(Director.s[. ]Cut\|Extended[. ]Edition\)//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | iconv -f utf-8 -t ascii//translit)
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's@\(?\|!\|\\\|/\)@@g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\./ /g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/(*\(19\|20\)[0-9][0-9])*$//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/-/ /g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\ +/ /g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/\ +$//g')
-OUTPUT_FILE_NAME=$(echo ${OUTPUT_FILE_NAME} | sed 's/[Ss]\([0-9][0-9]*\)[Ee]\([0-9][0-9]*\)$/S\1E\2/g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/\.mkv$//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CRiSC\|CtrlHD\|decibeL\|EbP\|ETRG\|FLUX\|FraMeSToR\|FREEHK\|ggez\|GOLDIES\|iNTERNAL\|TENEIGHTY\|TrollUHD\|playBD\|LazyStudio\|MovietaM\|NTb\|[Pp][Ss][Yy][Cc][Hh][Dd]\|HDMaN\|BLUEBIRD\|TrollUHD\|MTeam\|MZABI\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(720p\|1080p\|2160[p]*\|4K\|UHD\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(AVC\|DV\|[Dd][Xx][Vv][Aa]\|HEVC\|[xX]26[45]\|[Hh]\.*26[45]\|-AJP69\|[Bb]lu-*[Rr]ay\|VC-1\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(Amazon\|AMZN\|ATVP\|Disney\|Vimeo\|[Ww][Ee][Bb]\(-DL\)*\|WEBRip\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(Extended Edition\|Extended\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(REPACK\|Remux\|REMUX\|RoSubbed\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(AC3\|AAC2\.0\|Atmos\|DTS-MA\|DTS-X\|DTS\|HD[-\ \.]MA\|LPCM\|DD+\|DD[P]*[\.]*[567]\.1\|DTSX\|FLAC[-\ \.][567]\.1\|TrueHD\|[567]\.1\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(Director.s[. ]Cut\|Extended[. ]Edition\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | iconv -f utf-8 -t ascii//translit)
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's@\(?\|!\|\\\|/\)@@g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/\./ /g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/(*\(19\|20\)[0-9][0-9])*$//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/-/ /g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/\ +/ /g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/\ +$//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[Ss]\([0-9][0-9]*\)[Ee]\([0-9][0-9]*\)$/S\1E\2/g')
 OUTPUT_FILE_PATH_WITHOUT_EXTENSION="${FILE_DIRECTORY}/${OUTPUT_FILE_NAME}"
 
-if [ $(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c) -gt 0 ]; then
+FILE_NAME_TVSHOW_EPISODE_MATCHES_COUNT=$(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c)
+if [ "${FILE_NAME_TVSHOW_EPISODE_MATCHES_COUNT}" -gt 0 ]; then
     IS_TVSHOW_EPISODE=true
 fi
 
 function getVideoTrackFormat {
-    echo $( mkvmerge -i "${FILE_PATH}" | \
-            grep -E "Track ID [0-9]+: video" | \
-            head -n 1 | tail -n 1 | \
-            awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
+    local VIDEO_TRACK_FORMAT=""
+
+    VIDEO_TRACK_FORMAT=$(mkvmerge -i "${FILE_PATH}" | \
+                            grep -E "Track ID [0-9]+: video" | \
+                            head -n 1 | tail -n 1 | \
+                            awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
+
+    echo "${VIDEO_TRACK_FORMAT}"
 }
 
 function getAudioTrackFormat {
-    AUDIO_TRACK_INDEX="${1}"
-    TRACK_ID=$((AUDIO_TRACK_INDEX+1))
-    AUDIO_TRACKS_COUNT=$(   mkvmerge -i "${FILE_PATH}" | \
-                            grep -E "Track ID [0-9]+: audio" | \
-                            wc -l)
+    local AUDIO_TRACK_INDEX="${1}"
+    local TRACK_ID=-1
+    local AUDIO_TRACKS_COUNT=-1
+    local AUDIO_TRACK_FORMAT=""
 
-    if [ ${AUDIO_TRACKS_COUNT} -ge ${TRACK_ID} ]; then
-        echo $( mkvmerge -i "${FILE_PATH}" | \
-                grep -E "Track ID [0-9]+: audio" | \
-                head -n ${TRACK_ID} | tail -n 1 | \
-                awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
+    TRACK_ID=$((AUDIO_TRACK_INDEX+1))
+    AUDIO_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | \
+                                grep -E "Track ID [0-9]+: audio" | \
+                                wc -l)
+
+    if [ "${AUDIO_TRACKS_COUNT}" -ge "${TRACK_ID}" ]; then
+        AUDIO_TRACK_FORMAT=$(mkvmerge -i "${FILE_PATH}" | \
+                            grep -E "Track ID [0-9]+: audio" | \
+                            head -n "${TRACK_ID}" | tail -n 1 | \
+                            awk -F "(" '{print $2}' | awk -F ")" '{print $1}')
     fi
+
+    echo "${AUDIO_TRACK_FORMAT}"
 }
 
 function getAudioTrackName {
-    AUDIO_TRACK_INDEX=${1}
-    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_INDEX})
+    local AUDIO_TRACK_INDEX="${1}"
+    local AUDIO_TRACK_FORMAT=""
+    local TRACK_ID=-1
+    local AUDIO_TRACK_NAME=""
+
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
     TRACK_ID=$((AUDIO_TRACK_INDEX+1))
 
     if [ -n "${AUDIO_TRACK_FORMAT}" ]; then
-        echo $(getTrackName ${TRACK_ID})
+        AUDIO_TRACK_NAME=$(getTrackName "${TRACK_ID}")
     fi
+
+    echo "${AUDIO_TRACK_NAME}"
 }
 
 function getTrackName {
-    TRACK_ID="${1}"
-    TRACK_ID_MKVINFO=$((TRACK_ID+1))
+    local TRACK_ID="${1}"
+    local TRACK_ID_MKVINFO=-1
+    local MKVINFO_TRACK_BEGIN_LINE=-1
+    local MKVINFO_TRACK_END_LINE=-1
+    local MKVINFO_TRACK_END_LINE=-1
+    local MKVINFO_TRACK_LINES_COUNT=-1
+    local TRACK_NAME=""
 
+    TRACK_ID_MKVINFO=$((TRACK_ID+1))
     MKVINFO_TRACK_BEGIN_LINE=$(mkvinfo "${FILE_PATH}" | grep -n "+ Track number: ${TRACK_ID_MKVINFO}" | awk -F: '{print $1}' | head -n 1)
-    MKVINFO_TRACK_END_LINE=$(mkvinfo "${FILE_PATH}" | tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | grep -n "\(| +\||+\)" | head -n 1 | awk -F: '{print $1}')
+    MKVINFO_TRACK_END_LINE=$(mkvinfo "${FILE_PATH}" | tail --lines=+"${MKVINFO_TRACK_BEGIN_LINE}" | grep -n "\(| +\||+\)" | head -n 1 | awk -F: '{print $1}')
     MKVINFO_TRACK_END_LINE=$((MKVINFO_TRACK_BEGIN_LINE+MKVINFO_TRACK_END_LINE-2))
     MKVINFO_TRACK_LINES_COUNT=$((MKVINFO_TRACK_END_LINE-MKVINFO_TRACK_BEGIN_LINE+1))
+    TRACK_NAME=$(mkvinfo "${FILE_PATH}" | \
+                    tail --lines=+"${MKVINFO_TRACK_BEGIN_LINE}" | \
+                    head -n "${MKVINFO_TRACK_LINES_COUNT}" | \
+                    grep "+ Name:" | \
+                    awk -F: '{print $2}' | \
+                    sed 's/^ *//g')
 
-    TRACK_LANGUAGE=$(   mkvinfo "${FILE_PATH}" | \
-                        tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | \
-                        head -n ${MKVINFO_TRACK_LINES_COUNT} | \
-                        grep "+ Name:" | \
-                        awk -F: '{print $2}' | \
-                        sed 's/^ *//g')
-
-    echo ${TRACK_LANGUAGE}
+    echo "${TRACK_NAME}"
 }
 
 function getTrackLanguage {
-    TRACK_ID=${1}
-    TRACK_ID_MKVINFO=$((TRACK_ID+1))
+    local TRACK_ID="${1}"
+    local TRACK_ID_MKVINFO=-1
+    local MKVINFO_TRACK_BEGIN_LINE=-1
+    local MKVINFO_TRACK_END_LINE=-1
+    local MKVINFO_TRACK_END_LINE=-1
+    local MKVINFO_TRACK_LINES_COUNT=-1
+    local TRACK_LANGUAGE=""
 
+    TRACK_ID_MKVINFO=$((TRACK_ID+1))
     MKVINFO_TRACK_BEGIN_LINE=$(mkvinfo "${FILE_PATH}" | grep -n "+ Track number: ${TRACK_ID_MKVINFO}" | awk -F: '{print $1}' | head -n 1)
-    MKVINFO_TRACK_END_LINE=$(mkvinfo "${FILE_PATH}" | tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | grep -n "\(| +\||+\)" | head -n 1 | awk -F: '{print $1}')
+    MKVINFO_TRACK_END_LINE=$(mkvinfo "${FILE_PATH}" | tail --lines=+"${MKVINFO_TRACK_BEGIN_LINE}" | grep -n "\(| +\||+\)" | head -n 1 | awk -F: '{print $1}')
     MKVINFO_TRACK_END_LINE=$((MKVINFO_TRACK_BEGIN_LINE+MKVINFO_TRACK_END_LINE-2))
     MKVINFO_TRACK_LINES_COUNT=$((MKVINFO_TRACK_END_LINE-MKVINFO_TRACK_BEGIN_LINE+1))
+    TRACK_LANGUAGE=$(mkvinfo "${FILE_PATH}" | \
+                        tail --lines=+"${MKVINFO_TRACK_BEGIN_LINE}" | \
+                        head -n "${MKVINFO_TRACK_LINES_COUNT}" | \
+                        grep "+ Language:" | \
+                        awk -F: '{print toupper($2)}' | \
+                        sed 's/ //g')
 
-    TRACK_LANGUAGE=$(mkvinfo "${FILE_PATH}" | tail --lines=+${MKVINFO_TRACK_BEGIN_LINE} | head -n ${MKVINFO_TRACK_LINES_COUNT} | grep "+ Language:" | awk -F: '{print toupper($2)}' | sed 's/ //g')
-
-    echo ${TRACK_LANGUAGE}
-}
-
-function printAudioTrackInfo {
-    AUDIO_TRACK_INDEX=${1}
-    AUDIO_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_INDEX})
-
-    if [ -n "${AUDIO_FORMAT}" ]; then
-        AUDIO_NAME=$(getAudioTrackName ${AUDIO_TRACK_INDEX})
-        printf "Audio ${AUDIO_TRACK_INDEX}: Format=${AUDIO_FORMAT}" >&2
-
-        [ -n "${AUDIO_NAME}" ] && printf ", Name=\"${AUDIO_NAME}\"" >&2
-        printf "\n" >&2
-    fi
+    echo "${TRACK_LANGUAGE}"
 }
 
 echo "Gathering file info for ${FILE_PATH} ..."
@@ -138,15 +156,25 @@ echo "Session ID: ${SESSION_ID}"
 echo "Input file name: ${FILE_NAME}"
 echo "Video format: ${VIDEO_FORMAT}"
 
-for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < ${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
-    printAudioTrackInfo ${AUDIO_TRACK_INDEX}
+for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < AUDIO_TRACKS_COUNT; AUDIO_TRACK_INDEX++)); do
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
+
+    if [ -n "${AUDIO_TRACK_FORMAT}" ]; then
+        AUDIO_TRACK_NAME=$(getAudioTrackName "${AUDIO_TRACK_INDEX}")
+
+        printf "Audio ${AUDIO_TRACK_INDEX}: ${AUDIO_TRACK_FORMAT}"
+        [ -n "${AUDIO_TRACK_NAME}" ] && printf " (${AUDIO_NAME})"
+        printf "\n"
+    fi
 done
 
 echo "Output file name: ${OUTPUT_FILE_NAME}"
 
 function isAudioTrackFormatOk {
-    AUDIO_TRACK_INDEX=${1}
-    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_INDEX})
+    local AUDIO_TRACK_INDEX="${1}"
+    local AUDIO_TRACK_FORMAT=""
+
+    AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
 
     # AC-3 could cause some problems on some rare devices. It's better to just use AAC instead since it's not going to make a difference anyay
     if [[ "${AUDIO_TRACK_FORMAT}" == "AAC" ]] \
@@ -158,10 +186,14 @@ function isAudioTrackFormatOk {
 }
 
 function isAudioTrackCommentary {
-    AUDIO_TRACK_INDEX=${1}
-    AUDIO_TRACK_NAME=$(getAudioTrackName ${AUDIO_TRACK_INDEX})
+    local AUDIO_TRACK_INDEX=${1}
+    local AUDIO_TRACK_NAME=""
+    local COMMENTARY_NAME_MATCHES_COUNT=0
 
-    if [ $(echo "${AUDIO_TRACK_NAME}" | grep -c "[Cc]ommentary") -ge 1 ]; then
+    AUDIO_TRACK_NAME=$(getAudioTrackName "${AUDIO_TRACK_INDEX}")
+    COMMENTARY_NAME_MATCHES_COUNT=$(echo "${AUDIO_TRACK_NAME}" | grep -c "[Cc]ommentary")
+
+    if [ "${COMMENTARY_NAME_MATCHES_COUNT=}" -ge 1 ]; then
         return 0 # True
     else
         return 1 # False
@@ -169,9 +201,10 @@ function isAudioTrackCommentary {
 }
 
 function isAudioTrackDiscardable {
-    AUDIO_TRACK_INDEX="${1}"
+    local AUDIO_TRACK_INDEX="${1}"
+    local AUDIO_TRACK_FORMAT=""
 
-    $(isAudioTrackCommentary "${AUDIO_TRACK_INDEX}") && return 0 # True
+    isAudioTrackCommentary "${AUDIO_TRACK_INDEX}" && return 0 # True
 
     AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
 
@@ -201,8 +234,8 @@ function getAudioFfmpegArgs {
     local COPIED_AUDIO_TRACK_INDEX=-1
     local MODIFICATIONS_APPLIED=false
 
-    for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
-        if isAudioTrackFormatOk ${AUDIO_TRACK_INDEX}; then
+    for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < AUDIO_TRACKS_COUNT; AUDIO_TRACK_INDEX++)); do
+        if isAudioTrackFormatOk "${AUDIO_TRACK_INDEX}"; then
             FFMPEG_AUDIO_TRACK_ARGS="-map 0:a:${AUDIO_TRACK_INDEX} -c:a:0 copy"
             OUTPUT_AUDIO_TRACKS_COUNT=1
             COPIED_AUDIO_TRACK_INDEX=${AUDIO_TRACK_INDEX}
@@ -212,8 +245,8 @@ function getAudioFfmpegArgs {
     done
 
     if [ -z "${FFMPEG_AUDIO_TRACK_ARGS}" ]; then
-        for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
-            if ! isAudioTrackCommentary ${AUDIO_TRACK_INDEX}; then
+        for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < AUDIO_TRACKS_COUNT; AUDIO_TRACK_INDEX++)); do
+            if ! isAudioTrackCommentary "${AUDIO_TRACK_INDEX}"; then
                 FFMPEG_AUDIO_TRACK_ARGS="-map 0:a:${AUDIO_TRACK_INDEX} -c:a:0 aac"
                 OUTPUT_AUDIO_TRACKS_COUNT=1
                 MODIFICATIONS_APPLIED=true
@@ -223,13 +256,13 @@ function getAudioFfmpegArgs {
     fi
 
     if ${IS_TVSHOW_EPISODE} && ${KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS}; then
-        for ((AUDIO_TRACK_INDEX=0; AUDIO_TRACK_INDEX<${AUDIO_TRACKS_COUNT}; AUDIO_TRACK_INDEX++)); do
+        for ((AUDIO_TRACK_INDEX = 0; AUDIO_TRACK_INDEX < AUDIO_TRACKS_COUNT; AUDIO_TRACK_INDEX++)); do
             #if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX} ; then
             #    FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map -0:a:${AUDIO_TRACK_INDEX}"
             #else
             [[ "${AUDIO_TRACK_INDEX}" == "${COPIED_AUDIO_TRACK_INDEX}" ]] && continue
 
-            if isAudioTrackDiscardable ${AUDIO_TRACK_INDEX}; then
+            if isAudioTrackDiscardable "${AUDIO_TRACK_INDEX}"; then
                 MODIFICATIONS_APPLIED=true
             else
                 FFMPEG_AUDIO_TRACK_ARGS="${FFMPEG_AUDIO_TRACK_ARGS} -map 0:a:${AUDIO_TRACK_INDEX} -c:a:${OUTPUT_AUDIO_TRACKS_COUNT} copy"
@@ -238,14 +271,14 @@ function getAudioFfmpegArgs {
         done
     fi
 
-    [ ${OUTPUT_AUDIO_TRACKS_COUNT} -ne ${AUDIO_TRACKS_COUNT} ] && MODIFICATIONS_APPLIED=true
+    [ "${OUTPUT_AUDIO_TRACKS_COUNT}" -ne "${AUDIO_TRACKS_COUNT}" ] && MODIFICATIONS_APPLIED=true
 
 #    [[ "${FFMPEG_AUDIO_TRACK_ARGS}" != "-map 0:a:0 -c:a:0 copy" ]] && echo "${FFMPEG_AUDIO_TRACK_ARGS}"
     ${MODIFICATIONS_APPLIED} && echo "${FFMPEG_AUDIO_TRACK_ARGS}"
 }
 
 function isSubtitleTrackDiscardable {
-    local TRACK_ID="${@}"
+    local TRACK_ID="${*}"
 
     if (! ${KEEP_FORCED_SUBTITLES}); then
         [[ "${TRACK_NAME}" == *"Forced"* ]] && return 0 # True
@@ -258,52 +291,68 @@ function isSubtitleTrackDiscardable {
     return 1 # False
 }
 
+function doesTrackNameMatch {
+    local TRACK_NAME="${1}"
+    local MATCH_PATTERN="${2}"
+    local MATCHES_COUNT=0
+
+    MATCHES_COUNT=$(echo "${TRACK_NAME}" | grep -c "${MATCH_PATTERN}")
+
+    if [ "${MATCHES_COUNT}" -gt 0 ]; then
+        return 0 # True
+    else
+        return 1 # False
+    fi
+}
+
 function getSubtitleLanguage {
-    local TRACK_ID="${@}"
-    local TRACK_LANGUAGE="$(getTrackLanguage ${TRACK_ID})"
-    local TRACK_NAME=$(getTrackName "${TRACK_ID}")
+    local TRACK_ID="${*}"
+    local TRACK_LANGUAGE=""
+    local TRACK_NAME=""
 
-#    if [ -z "${TRACK_LANGUAGE}" ]; then
-        [ $(echo "${TRACK_NAME}" | grep -c "中文\|[Cc]hinese") -ge 1 ] && TRACK_LANGUAGE="CHI"
-        [ $(echo "${TRACK_NAME}" | grep -c "廣東話\|[Cc]antonese\|[Yy]ue") -ge 1 ] && TRACK_LANGUAGE="YUE"
+    TRACK_NAME=$(getTrackName "${TRACK_ID}")
 
-        [ $(echo "${TRACK_NAME}" | grep -c "[Aa]rabic") -ge 1 ] && TRACK_LANGUAGE="ARA"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Bb]ulgarian") -ge 1 ] && TRACK_LANGUAGE="BUL"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Cc]zech") -ge 1 ] && TRACK_LANGUAGE="CZE"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Dd]anish") -ge 1 ] && TRACK_LANGUAGE="DAN"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Dd]eutsch\|[Gg]erman") -ge 1 ] && TRACK_LANGUAGE="GER"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Dd]utch") -ge 1 ] && TRACK_LANGUAGE="DUT"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ee]nglish") -ge 1 ] && TRACK_LANGUAGE="ENG"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ee]spañol\|[Ss]panish") -ge 1 ] && TRACK_LANGUAGE="SPA"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ee]stonian") -ge 1 ] && TRACK_LANGUAGE="EST"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ff]innish") -ge 1 ] && TRACK_LANGUAGE="FIN"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ff]rançais\|[Ff]rench") -ge 1 ] && TRACK_LANGUAGE="FRE"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Gg]reek") -ge 1 ] && TRACK_LANGUAGE="GRE"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Hh]ebrew") -ge 1 ] && TRACK_LANGUAGE="HEB"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Hh]indi") -ge 1 ] && TRACK_LANGUAGE="HIN"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Hh]ungarian") -ge 1 ] && TRACK_LANGUAGE="HUN"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ii]ndonesian") -ge 1 ] && TRACK_LANGUAGE="IND"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ii]taliano\|[Ii]talian") -ge 1 ] && TRACK_LANGUAGE="ITA"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Jj]apanese") -ge 1 ] && TRACK_LANGUAGE="JAP"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Kk]orean") -ge 1 ] && TRACK_LANGUAGE="KOR"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ll]atvian") -ge 1 ] && TRACK_LANGUAGE="LAV"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ll]ithuanian") -ge 1 ] && TRACK_LANGUAGE="LIT"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Mm]alay") -ge 1 ] && TRACK_LANGUAGE="MAY"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Nn]orwegian") -ge 1 ] && TRACK_LANGUAGE="NOR"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Pp]olish") -ge 1 ] && TRACK_LANGUAGE="POL"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Pp]ortuguês\|[Pp]ortuguese") -ge 1 ] && TRACK_LANGUAGE="POR"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Rr]omână\|[Rr]omanian") -ge 1 ] && TRACK_LANGUAGE="RUM"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Rr]ussian") -ge 1 ] && TRACK_LANGUAGE="RUS"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]lovak") -ge 1 ] && TRACK_LANGUAGE="SLO"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]lovenian") -ge 1 ] && TRACK_LANGUAGE="SLV"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]wedish") -ge 1 ] && TRACK_LANGUAGE="SWE"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]amil") -ge 1 ] && TRACK_LANGUAGE="TAM"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]elugu") -ge 1 ] && TRACK_LANGUAGE="TEL"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]hai") -ge 1 ] && TRACK_LANGUAGE="THA"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]urkish") -ge 1 ] && TRACK_LANGUAGE="TUR"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Uu]krainian") -ge 1 ] && TRACK_LANGUAGE="UKR"
-        [ $(echo "${TRACK_NAME}" | grep -c "[Vv]ietmanese") -ge 1 ] && TRACK_LANGUAGE="VIE"
-#    fi
+    doesTrackNameMatch "${TRACK_NAME}" "中文\|[Cc]hinese"               && TRACK_LANGUAGE="CHI"
+    doesTrackNameMatch "${TRACK_NAME}" "廣東話\|[Cc]antonese\|[Yy]ue"   && TRACK_LANGUAGE="YUE"
+
+    doesTrackNameMatch "${TRACK_NAME}" "[Aa]rabic"                      && TRACK_LANGUAGE="ARA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Bb]ulgarian"                   && TRACK_LANGUAGE="BUL"
+    doesTrackNameMatch "${TRACK_NAME}" "[Cc]zech"                       && TRACK_LANGUAGE="CZE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Dd]anish"                      && TRACK_LANGUAGE="DAN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Dd]utch"                       && TRACK_LANGUAGE="DUT"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ee]nglish"                     && TRACK_LANGUAGE="ENG"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ee]stonian"                    && TRACK_LANGUAGE="EST"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ff]innish"                     && TRACK_LANGUAGE="FIN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ff]rench\|[Ff]rançais"         && TRACK_LANGUAGE="FRE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Gg]erman\|[Dd]eutsch"          && TRACK_LANGUAGE="GER"
+    doesTrackNameMatch "${TRACK_NAME}" "[Gg]reek"                       && TRACK_LANGUAGE="GRE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Hh]ebrew"                      && TRACK_LANGUAGE="HEB"
+    doesTrackNameMatch "${TRACK_NAME}" "[Hh]indi"                       && TRACK_LANGUAGE="HIN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Hh]ungarian"                   && TRACK_LANGUAGE="HUN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ii]ndonesian"                  && TRACK_LANGUAGE="IND"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ii]talian\|[Ii]taliano"        && TRACK_LANGUAGE="ITA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Jj]apanese"                    && TRACK_LANGUAGE="JAP"
+    doesTrackNameMatch "${TRACK_NAME}" "[Kk]orean"                      && TRACK_LANGUAGE="KOR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ll]atvian"                     && TRACK_LANGUAGE="LAV"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ll]ithuanian"                  && TRACK_LANGUAGE="LIT"
+    doesTrackNameMatch "${TRACK_NAME}" "[Mm]alay"                       && TRACK_LANGUAGE="MAY"
+    doesTrackNameMatch "${TRACK_NAME}" "[Nn]orwegian"                   && TRACK_LANGUAGE="NOR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Pp]olish"                      && TRACK_LANGUAGE="POL"
+    doesTrackNameMatch "${TRACK_NAME}" "[Pp]ortuguese\|[Pp]ortuguês"    && TRACK_LANGUAGE="POR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Rr]omanian\|[Rr]omână"         && TRACK_LANGUAGE="RUM"
+    doesTrackNameMatch "${TRACK_NAME}" "[Rr]ussian"                     && TRACK_LANGUAGE="RUS"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]lovak"                      && TRACK_LANGUAGE="SLO"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]lovenian"                   && TRACK_LANGUAGE="SLV"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]panish\|[Ee]spañol"         && TRACK_LANGUAGE="SPA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]wedish"                     && TRACK_LANGUAGE="SWE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]amil"                       && TRACK_LANGUAGE="TAM"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]elugu"                      && TRACK_LANGUAGE="TEL"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]hai"                        && TRACK_LANGUAGE="THA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]urkish"                     && TRACK_LANGUAGE="TUR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Uu]krainian"                   && TRACK_LANGUAGE="UKR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Vv]ietmanese"                  && TRACK_LANGUAGE="VIE"
+
+    [ -z "${TRACK_LANGUAGE}" ] && TRACK_LANGUAGE=$(getTrackLanguage "${TRACK_ID}")
 
     echo "${TRACK_LANGUAGE}"
 }
@@ -359,7 +408,7 @@ if [ "${FILE_EXTENSION}" != "mkv" ] || [ "${CONTAINER_FORMAT}" != "Matroska" ]; 
     FFMPEG_ARGUMENTS=""
 fi
 
-if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
+if [ "${SUBTITLE_TRACKS_COUNT}" -gt 0 ]; then
     echo "Subtitles need removal!"
     IS_OPTIMISABLE=true
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} -map -0:s"
@@ -376,7 +425,7 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
             TRACK_LANGUAGE=$(getSubtitleLanguage "${TRACK_ID}")
             TRACK_NAME=$(getTrackName "${TRACK_ID}")
 
-            $(isSubtitleTrackDiscardable "${TRACK_ID}") && continue
+            isSubtitleTrackDiscardable "${TRACK_ID}" && continue
 
             if [ -z "${TRACK_LANGUAGE}" ]; then
                 TRACK_LANGUAGE="(unknown)"
@@ -396,10 +445,10 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
             TRACK_LANGUAGES=""
 
             for TRACK_ID in ${SUBTITLE_TRACKS}; do
-                TRACK_LANGUAGE="$(getSubtitleLanguage ${TRACK_ID})"
+                TRACK_LANGUAGE=$(getSubtitleLanguage "${TRACK_ID}")
                 TRACK_NAME=$(getTrackName "${TRACK_ID}")
 
-                $(isSubtitleTrackDiscardable "${TRACK_ID}") && continue
+                isSubtitleTrackDiscardable "${TRACK_ID}" && continue
 
                 DUPLICATIONS=$(echo "${TRACK_LANGUAGES}" | sed 's/,/\n/g' | grep -c "${TRACK_LANGUAGE}")
 
@@ -458,7 +507,7 @@ if ${IS_OPTIMISABLE}; then
 
     FFMPEG_ARGUMENTS="${FFMPEG_ARGUMENTS} ${CLEANUP_FFMPEG_ARGUMENTS}"
 
-    if [ ! -z "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
+    if [ -n "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
         echo "Extracting the subtitles..."
         ffmpeg -i "${FILE_PATH}" ${SUBTITLES_FFMPEG_ARGUMENTS}
 
