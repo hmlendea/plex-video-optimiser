@@ -9,6 +9,7 @@ fi
 
 # Options
 KEEP_ORIGINAL_AUDIO_TRACKS_FOR_TVSHOWS=false
+KEEP_FORCED_SUBTITLES=false
 KEEP_SDH_SUBTITLES=false
 
 FILE_PATH_WITHOUT_EXTENSION="${FILE_PATH%.*}"
@@ -133,6 +134,7 @@ AUDIO_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": audio" -c)
 
 SUBTITLE_TRACKS_COUNT=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" -c)
 
+echo "Session ID: ${SESSION_ID}"
 echo "Input file name: ${FILE_NAME}"
 echo "Video format: ${VIDEO_FORMAT}"
 
@@ -263,6 +265,10 @@ function getAudioFfmpegArgs {
 function isSubtitleTrackDiscardable {
     local TRACK_ID="${@}"
 
+    if (! ${KEEP_FORCED_SUBTITLES}); then
+        [[ "${TRACK_NAME}" == *"Forced"* ]] && return 0 # True
+    fi
+
     if (! ${KEEP_SDH_SUBTITLES}); then
         [[ "${TRACK_NAME}" == *"SDH"* ]] && return 0 # True
     fi
@@ -276,13 +282,45 @@ function getSubtitleLanguage {
     local TRACK_NAME=$(getTrackName "${TRACK_ID}")
 
 #    if [ -z "${TRACK_LANGUAGE}" ]; then
-        [ $(echo "${TRACK_NAME}" | grep -c "廣東話\|[Cc]antonese") -ge 1 ] && TRACK_LANGUAGE="YUE"
         [ $(echo "${TRACK_NAME}" | grep -c "中文\|[Cc]hinese") -ge 1 ] && TRACK_LANGUAGE="CHI"
+        [ $(echo "${TRACK_NAME}" | grep -c "廣東話\|[Cc]antonese\|[Yy]ue") -ge 1 ] && TRACK_LANGUAGE="YUE"
+
+        [ $(echo "${TRACK_NAME}" | grep -c "[Aa]rabic") -ge 1 ] && TRACK_LANGUAGE="ARA"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Bb]ulgarian") -ge 1 ] && TRACK_LANGUAGE="BUL"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Cc]zech") -ge 1 ] && TRACK_LANGUAGE="CZE"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Dd]anish") -ge 1 ] && TRACK_LANGUAGE="DAN"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Dd]eutsch\|[Gg]erman") -ge 1 ] && TRACK_LANGUAGE="GER"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Dd]utch") -ge 1 ] && TRACK_LANGUAGE="DUT"
         [ $(echo "${TRACK_NAME}" | grep -c "[Ee]nglish") -ge 1 ] && TRACK_LANGUAGE="ENG"
         [ $(echo "${TRACK_NAME}" | grep -c "[Ee]spañol\|[Ss]panish") -ge 1 ] && TRACK_LANGUAGE="SPA"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ee]stonian") -ge 1 ] && TRACK_LANGUAGE="EST"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ff]innish") -ge 1 ] && TRACK_LANGUAGE="FIN"
         [ $(echo "${TRACK_NAME}" | grep -c "[Ff]rançais\|[Ff]rench") -ge 1 ] && TRACK_LANGUAGE="FRE"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Gg]reek") -ge 1 ] && TRACK_LANGUAGE="GRE"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Hh]ebrew") -ge 1 ] && TRACK_LANGUAGE="HEB"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Hh]indi") -ge 1 ] && TRACK_LANGUAGE="HIN"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Hh]ungarian") -ge 1 ] && TRACK_LANGUAGE="HUN"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ii]ndonesian") -ge 1 ] && TRACK_LANGUAGE="IND"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ii]taliano\|[Ii]talian") -ge 1 ] && TRACK_LANGUAGE="ITA"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Jj]apanese") -ge 1 ] && TRACK_LANGUAGE="JAP"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Kk]orean") -ge 1 ] && TRACK_LANGUAGE="KOR"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ll]atvian") -ge 1 ] && TRACK_LANGUAGE="LAV"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ll]ithuanian") -ge 1 ] && TRACK_LANGUAGE="LIT"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Mm]alay") -ge 1 ] && TRACK_LANGUAGE="MAY"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Nn]orwegian") -ge 1 ] && TRACK_LANGUAGE="NOR"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Pp]olish") -ge 1 ] && TRACK_LANGUAGE="POL"
         [ $(echo "${TRACK_NAME}" | grep -c "[Pp]ortuguês\|[Pp]ortuguese") -ge 1 ] && TRACK_LANGUAGE="POR"
         [ $(echo "${TRACK_NAME}" | grep -c "[Rr]omână\|[Rr]omanian") -ge 1 ] && TRACK_LANGUAGE="RUM"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Rr]ussian") -ge 1 ] && TRACK_LANGUAGE="RUS"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]lovak") -ge 1 ] && TRACK_LANGUAGE="SLO"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]lovenian") -ge 1 ] && TRACK_LANGUAGE="SLV"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Ss]wedish") -ge 1 ] && TRACK_LANGUAGE="SWE"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]amil") -ge 1 ] && TRACK_LANGUAGE="TAM"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]elugu") -ge 1 ] && TRACK_LANGUAGE="TEL"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]hai") -ge 1 ] && TRACK_LANGUAGE="THA"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Tt]urkish") -ge 1 ] && TRACK_LANGUAGE="TUR"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Uu]krainian") -ge 1 ] && TRACK_LANGUAGE="UKR"
+        [ $(echo "${TRACK_NAME}" | grep -c "[Vv]ietmanese") -ge 1 ] && TRACK_LANGUAGE="VIE"
 #    fi
 
     echo "${TRACK_LANGUAGE}"
@@ -383,17 +421,23 @@ if [ ${SUBTITLE_TRACKS_COUNT} -gt 0 ]; then
 
                 DUPLICATIONS=$(echo "${TRACK_LANGUAGES}" | sed 's/,/\n/g' | grep -c "${TRACK_LANGUAGE}")
 
-                if [ ! -z "${TRACK_LANGUAGE}" ]; then
-                    TRACK_LANGUAGES="${TRACK_LANGUAGES}${TRACK_LANGUAGE},"
-
-                    if [ ${DUPLICATIONS} -ge 1 ]; then
+                if [ -n "${TRACK_LANGUAGE}" ]; then
+                    if [ "${DUPLICATIONS}" -ge 1 ]; then
                         if [ -n "${TRACK_NAME}" ]; then
-                            TRACK_LANGUAGE_NAME=$(echo "${TRACK_NAME}" | sed -e 's/^[^(]*//g' -e 's/\s//g' -e 's/[()]//g')
+                            TRACK_LANGUAGE_NAME=$(echo "${TRACK_NAME}" | sed \
+                                -e 's/\s//g' -e 's/[()]//g' \
+                                -e 's/\([Cc]hinese\|[Ff]rench\|[Pp]ortuguese\|[Ss]panish\)//g' \
+                                -e 's/[Bb]razilian/Brazil/g' \
+                                -e 's/[Cc]anadian/Canada/g' \
+                                -e 's/[Ee]uropean/Europe/g')
+
                             TRACK_LANGUAGE="${TRACK_LANGUAGE}-${TRACK_LANGUAGE_NAME}"
                         else
                             TRACK_LANGUAGE="${TRACK_LANGUAGE}$((DUPLICATIONS+1))"
                         fi
                     fi
+
+                    TRACK_LANGUAGES="${TRACK_LANGUAGES}${TRACK_LANGUAGE},"
                 fi
 
                 SUBTITLE_TRACK_INDEX=$(mkvmerge -i "${FILE_PATH}" | grep ": subtitles (" | grep "^Track ID ${TRACK_ID}:" -n | awk -F: '{print $1}')
@@ -456,6 +500,7 @@ if ${IS_OPTIMISABLE}; then
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA" "SPA-Latinoamérica" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA-Latinoamérica" "SPA"
+        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Europe" "SPA-LatinAmerica" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA" "SPA"
         replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA-LatinAmerica" "SPA"
 
