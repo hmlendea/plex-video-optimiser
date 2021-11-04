@@ -511,38 +511,39 @@ if ${IS_OPTIMISABLE}; then
     if [ -n "${SUBTITLES_FFMPEG_ARGUMENTS}" ]; then
         echo "Extracting the subtitles..."
         ffmpeg -i "${FILE_PATH}" ${SUBTITLES_FFMPEG_ARGUMENTS}
+        TEMP_SUBTITLE_FILE_PREFIX="extractedSubtitleFile.${SESSION_ID}"
 
         # Chinese - Simplified
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI2" "CHI"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI3" "CHI"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI" "CHI-繁體" "CHI"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "CHI-简体" "CHI-繁體" "CHI"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "CHI" "CHI2" "CHI"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "CHI" "CHI3" "CHI"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "CHI" "CHI-繁體" "CHI"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "CHI-简体" "CHI-繁體" "CHI"
 
         # French - France
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "FRE" "FRE-Canada" "FRE"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "FRE-France" "FRE" "FRE"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "FRE-France" "FRE-Canada" "FRE"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "FRE" "FRE-Canada" "FRE"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "FRE-France" "FRE" "FRE"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "FRE-France" "FRE-Canada" "FRE"
 
         # Portuguese - Portugal
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "POR" "POR-Brasil" "POR"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "POR" "POR-Brazil" "POR"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "POR" "POR-Brasil" "POR"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "POR" "POR-Brazil" "POR"
 
         # Spanish - Spain
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA" "SPA-LatinAmerica" "SPA"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA" "SPA-Latinoamérica" "SPA"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA" "SPA"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-España" "SPA-Latinoamérica" "SPA"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Europe" "SPA-LatinAmerica" "SPA"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA" "SPA"
-        replaceDuplicatedSubtitles "extractedSubtitleFile.${SESSION_ID}" "SPA-Spain" "SPA-LatinAmerica" "SPA"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA" "SPA-LatinAmerica" "SPA"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA" "SPA-Latinoamérica" "SPA"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-España" "SPA" "SPA"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-España" "SPA-Latinoamérica" "SPA"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-Europe" "SPA-LatinAmerica" "SPA"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-Spain" "SPA" "SPA"
+        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-Spain" "SPA-LatinAmerica" "SPA"
 
         if [ -f "/usr/bin/fix-subtitle" ]; then
-            for EXTRACTED_SUBTITLE_FILE in "extractedSubtitleFile.${SESSION_ID}."*; do
+            for EXTRACTED_SUBTITLE_FILE in "${TEMP_SUBTITLE_FILE_PREFIX}."*; do
                 fix-subtitle --noconfirm "${EXTRACTED_SUBTITLE_FILE}"
             done
         fi
 
-        perl-rename 's/extractedSubtitleFile\.'"${SESSION_ID}"'/'"${OUTPUT_FILE_NAME}"'/g' "${FILE_DIRECTORY}"/*
+        perl-rename 's/'"${TEMP_SUBTITLE_FILE_PREFIX}"'/'"${OUTPUT_FILE_NAME}"'/g' "${FILE_DIRECTORY}"/*
     fi
 
     echo "Output file: ${OUTPUT_TEMP_FILE}"
