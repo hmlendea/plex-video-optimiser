@@ -144,33 +144,14 @@ done
 
 echo "Output file name: ${OUTPUT_FILE_NAME}"
 
-function isAudioFormatAcceptable {
-    AUDIO_FORMAT_TO_CHECK="$*"
-
-    if [[ "${AUDIO_FORMAT_TO_CHECK}" == "AAC" ]] \
-    || [[ "${AUDIO_FORMAT_TO_CHECK}" == "MP3" ]] \
-    || [[ "${AUDIO_FORMAT_TO_CHECK}" == "AC-3" ]] \
-    || [[ "${AUDIO_FORMAT_TO_CHECK}" == "Opus" ]]; then
-        return 0 # True
-    else
-        return 1 # False
-    fi
-}
-
 function isAudioTrackFormatOk {
     AUDIO_TRACK_INDEX=${1}
     AUDIO_TRACK_FORMAT=$(getAudioTrackFormat ${AUDIO_TRACK_INDEX})
 
+    # AC-3 could cause some problems on some rare devices. It's better to just use AAC instead since it's not going to make a difference anyay
     if [[ "${AUDIO_TRACK_FORMAT}" == "AAC" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]]; then
-#   || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
         return 0 # True
-    # Special case - AC-3 will be accepted only if it's the first or second track
-    elif [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]]; then
-        if [ "${AUDIO_TRACK_INDEX}" == 0 ] \
-        || [ "${AUDIO_TRACK_INDEX}" == 1 ]; then
-            return 0 # True
-        fi
     else
         return 1 # False
     fi
@@ -195,6 +176,7 @@ function isAudioTrackDiscardable {
     AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
 
     if [[ "${AUDIO_TRACK_FORMAT}" == "AC-3" ]] \
+    || [[ "${AUDIO_TRACK_FORMAT}" == "AC-3 Dolby Surround EX" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "E-AC-3" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "MP3" ]] \
     || [[ "${AUDIO_TRACK_FORMAT}" == "Opus" ]]; then
