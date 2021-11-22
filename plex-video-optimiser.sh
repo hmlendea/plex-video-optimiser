@@ -41,7 +41,7 @@ OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/(*\(19\|20\)[0-9][0-9])*$
 OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/-/ /g')
 OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/\s\s*/ /g')
 OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/\s*$//g')
-OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[Ss]\([0-9][0-9]*\)[Ee]\([0-9][0-9]*\)$/S\1E\2/g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[Ss]\([0-9][0-9]*\)[Ee]\([0-9][0-9]*\)/S\1E\2/g')
 OUTPUT_FILE_PATH_WITHOUT_EXTENSION="${FILE_DIRECTORY}/${OUTPUT_FILE_NAME}"
 
 FILE_NAME_TVSHOW_EPISODE_MATCHES_COUNT=$(echo "${FILE_NAME}" | grep -E "[Ss][0-9]+[Ee][0-9]+" -c)
