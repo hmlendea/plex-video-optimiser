@@ -89,6 +89,7 @@ function getAudioTrackName {
 
     AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
     TRACK_ID=$((AUDIO_TRACK_INDEX+1))
+#    TRACK_ID=${AUDIO_TRACK_INDEX}
 
     if [ -n "${AUDIO_TRACK_FORMAT}" ]; then
         AUDIO_TRACK_NAME=$(getTrackName "${TRACK_ID}")
@@ -101,6 +102,8 @@ function getSubtitleTrackName {
     local TRACK_ID="${1}"
 
     getTrackName "${TRACK_ID}" | \
+        sed -e 's/^\([Bb]ra[sz]il\|[Bb]razilian\|[Cc]anada\|[Cc]anadi[ae]n\|[Ee]urope[a]*[n]*\)\s\s*\(.*\)/\2 (\1)/g' | \
+        sed -e 's/\(.*\)\s\s*\([Bb]ra[sz]il\|[Bb]razilian\|[Cc]anada\|[Cc]anadi[ae]n\|[Ee]urope[a]*[n]*\)$/\1 (\2)/g' | \
         sed -e 's/[Bb]rasil\|[Bb]razilian/Brazil/g' \
             -e 's/[Cc]anadi[ae]n/Canada/g' \
             -e 's/[Ll]atin[o]*[Aa]m[eé]rica[n]*[o]*/LatinAmerica/g' \
@@ -331,8 +334,7 @@ function doesTrackNameMatch {
 function getSubtitleLanguage {
     local TRACK_ID="${*}"
     local TRACK_LANGUAGE=""
-    local TRACK_NAME=""
-
+    local TRACK_NAME=$(getSubtitleTrackName "${TRACK_ID}")
 
     doesTrackNameMatch "${TRACK_NAME}" "[Aa]rabic"      && TRACK_LANGUAGE="ARA"
     doesTrackNameMatch "${TRACK_NAME}" "[Bb]ulgarian"   && TRACK_LANGUAGE="BUL"
