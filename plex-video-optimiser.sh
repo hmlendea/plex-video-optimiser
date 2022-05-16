@@ -100,14 +100,15 @@ function getAudioTrackName {
 
 function getSubtitleTrackName {
     local TRACK_ID="${1}"
+    local LANGUAGE_VARIANTS_PATTERN="[Bb]razil\|[Cc]anada\|[Ee]urope"
 
     getTrackName "${TRACK_ID}" | \
-        sed -e 's/^\([Bb]ra[sz]il\|[Bb]razilian\|[Cc]anada\|[Cc]anadi[ae]n\|[Ee]urope[a]*[n]*\)\s\s*\(.*\)/\2 (\1)/g' | \
-        sed -e 's/\(.*\)\s\s*\([Bb]ra[sz]il\|[Bb]razilian\|[Cc]anada\|[Cc]anadi[ae]n\|[Ee]urope[a]*[n]*\)$/\1 (\2)/g' | \
         sed -e 's/[Bb]rasil\|[Bb]razilian/Brazil/g' \
             -e 's/[Cc]anadi[ae]n/Canada/g' \
             -e 's/[Ll]atin[o]*[Aa]m[eé]rica[n]*[o]*/LatinAmerica/g' \
             -e 's/[Ee]uropean/Europe/g' | \
+        sed -e 's/^\('"${LANGUAGE_VARIANTS_PATTERN}"'\)\s\s*\(.*\)/\2 (\1)/g' \
+            -e 's/\(.*\)\s\s*\('"${LANGUAGE_VARIANTS_PATTERN}"'\)$/\1 (\2)/g' | \
         sed -e 's/^中文/Chinese/g' \
             -e 's/^(廣東話\|[Yy]ue)/Cantonese/g' \
             -e 's/^[Dd]ansk/Danish/g' \
