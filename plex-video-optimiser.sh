@@ -116,7 +116,25 @@ function getTrackName {
                     head -n "${MKVINFO_TRACK_LINES_COUNT}" | \
                     grep "+ Name:" | \
                     awk -F: '{print $2}' | \
-                    sed 's/^ *//g')
+                    sed -e 's/^\s*//g' \
+                        -e 's/\s*$//g' | \
+                    sed -e 's/[Bb]rasil\|[Bb]razilian/Brazil/g' \
+                        -e 's/[Cc]anadi[ae]n/Canada/g' \
+                        -e 's/[Ll]atin[o]*[Aa]m[eé]rica[n]*[o]*/LatinAmerica/g' \
+                        -e 's/[Ee]uropean/Europe/g' | \
+                    sed -e 's/^中文/Chinese/g' \
+                        -e 's/^(廣東話\|[Yy]ue)/Cantonese/g' \
+                        -e 's/^[Dd]ansk/Danish/g' \
+                        -e 's/^[Nn]ederlands/Dutch/g' \
+                        -e 's/^[Ss]uomi/Finnish/g' \
+                        -e 's/^[Ff]rançais/French/g' \
+                        -e 's/^[Dd]eutsch/German/g' \
+                        -e 's/^[Ii]taliano/Italian/g' \
+                        -e 's/^[Nn]orsk/Norwegian/g' \
+                        -e 's/^[Pp]ortuguês/Portuguese/g' \
+                        -e 's/^[Rr]omână/Romanian/g' \
+                        -e 's/^[Ee]spañol/Spanish/g' \
+                        -e 's/^[Ss]venska/Swedish/g')
 
     echo "${TRACK_NAME}"
 }
@@ -311,47 +329,45 @@ function getSubtitleLanguage {
     local TRACK_LANGUAGE=""
     local TRACK_NAME=""
 
-    TRACK_NAME=$(getTrackName "${TRACK_ID}")
 
-    doesTrackNameMatch "${TRACK_NAME}" "中文\|[Cc]hinese"               && TRACK_LANGUAGE="CHI"
-    doesTrackNameMatch "${TRACK_NAME}" "廣東話\|[Cc]antonese\|[Yy]ue"   && TRACK_LANGUAGE="YUE"
-
-    doesTrackNameMatch "${TRACK_NAME}" "[Aa]rabic"                      && TRACK_LANGUAGE="ARA"
-    doesTrackNameMatch "${TRACK_NAME}" "[Bb]ulgarian"                   && TRACK_LANGUAGE="BUL"
-    doesTrackNameMatch "${TRACK_NAME}" "[Cc]zech"                       && TRACK_LANGUAGE="CZE"
-    doesTrackNameMatch "${TRACK_NAME}" "[Dd]anish"                      && TRACK_LANGUAGE="DAN"
-    doesTrackNameMatch "${TRACK_NAME}" "[Dd]utch"                       && TRACK_LANGUAGE="DUT"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ee]nglish"                     && TRACK_LANGUAGE="ENG"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ee]stonian"                    && TRACK_LANGUAGE="EST"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ff]innish"                     && TRACK_LANGUAGE="FIN"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ff]rench\|[Ff]rançais"         && TRACK_LANGUAGE="FRE"
-    doesTrackNameMatch "${TRACK_NAME}" "[Gg]erman\|[Dd]eutsch"          && TRACK_LANGUAGE="GER"
-    doesTrackNameMatch "${TRACK_NAME}" "[Gg]reek"                       && TRACK_LANGUAGE="GRE"
-    doesTrackNameMatch "${TRACK_NAME}" "[Hh]ebrew"                      && TRACK_LANGUAGE="HEB"
-    doesTrackNameMatch "${TRACK_NAME}" "[Hh]indi"                       && TRACK_LANGUAGE="HIN"
-    doesTrackNameMatch "${TRACK_NAME}" "[Hh]ungarian"                   && TRACK_LANGUAGE="HUN"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ii]ndonesian"                  && TRACK_LANGUAGE="IND"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ii]talian\|[Ii]taliano"        && TRACK_LANGUAGE="ITA"
-    doesTrackNameMatch "${TRACK_NAME}" "[Jj]apanese"                    && TRACK_LANGUAGE="JAP"
-    doesTrackNameMatch "${TRACK_NAME}" "[Kk]orean"                      && TRACK_LANGUAGE="KOR"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ll]atvian"                     && TRACK_LANGUAGE="LAV"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ll]ithuanian"                  && TRACK_LANGUAGE="LIT"
-    doesTrackNameMatch "${TRACK_NAME}" "[Mm]alay"                       && TRACK_LANGUAGE="MAY"
-    doesTrackNameMatch "${TRACK_NAME}" "[Nn]orwegian"                   && TRACK_LANGUAGE="NOR"
-    doesTrackNameMatch "${TRACK_NAME}" "[Pp]olish"                      && TRACK_LANGUAGE="POL"
-    doesTrackNameMatch "${TRACK_NAME}" "[Pp]ortuguese\|[Pp]ortuguês"    && TRACK_LANGUAGE="POR"
-    doesTrackNameMatch "${TRACK_NAME}" "[Rr]omanian\|[Rr]omână"         && TRACK_LANGUAGE="RUM"
-    doesTrackNameMatch "${TRACK_NAME}" "[Rr]ussian"                     && TRACK_LANGUAGE="RUS"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ss]lovak"                      && TRACK_LANGUAGE="SLO"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ss]lovenian"                   && TRACK_LANGUAGE="SLV"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ss]panish\|[Ee]spañol"         && TRACK_LANGUAGE="SPA"
-    doesTrackNameMatch "${TRACK_NAME}" "[Ss]wedish"                     && TRACK_LANGUAGE="SWE"
-    doesTrackNameMatch "${TRACK_NAME}" "[Tt]amil"                       && TRACK_LANGUAGE="TAM"
-    doesTrackNameMatch "${TRACK_NAME}" "[Tt]elugu"                      && TRACK_LANGUAGE="TEL"
-    doesTrackNameMatch "${TRACK_NAME}" "[Tt]hai"                        && TRACK_LANGUAGE="THA"
-    doesTrackNameMatch "${TRACK_NAME}" "[Tt]urkish"                     && TRACK_LANGUAGE="TUR"
-    doesTrackNameMatch "${TRACK_NAME}" "[Uu]krainian"                   && TRACK_LANGUAGE="UKR"
-    doesTrackNameMatch "${TRACK_NAME}" "[Vv]ietmanese"                  && TRACK_LANGUAGE="VIE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Aa]rabic"      && TRACK_LANGUAGE="ARA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Bb]ulgarian"   && TRACK_LANGUAGE="BUL"
+    doesTrackNameMatch "${TRACK_NAME}" "[Cc]antonese"   && TRACK_LANGUAGE="YUE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Cc]hinese"     && TRACK_LANGUAGE="CHI"
+    doesTrackNameMatch "${TRACK_NAME}" "[Cc]zech"       && TRACK_LANGUAGE="CZE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Dd]anish"      && TRACK_LANGUAGE="DAN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Dd]utch"       && TRACK_LANGUAGE="DUT"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ee]nglish"     && TRACK_LANGUAGE="ENG"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ee]stonian"    && TRACK_LANGUAGE="EST"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ff]innish"     && TRACK_LANGUAGE="FIN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ff]rench"      && TRACK_LANGUAGE="FRE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Gg]erman"      && TRACK_LANGUAGE="GER"
+    doesTrackNameMatch "${TRACK_NAME}" "[Gg]reek"       && TRACK_LANGUAGE="GRE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Hh]ebrew"      && TRACK_LANGUAGE="HEB"
+    doesTrackNameMatch "${TRACK_NAME}" "[Hh]indi"       && TRACK_LANGUAGE="HIN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Hh]ungarian"   && TRACK_LANGUAGE="HUN"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ii]ndonesian"  && TRACK_LANGUAGE="IND"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ii]talian"     && TRACK_LANGUAGE="ITA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Jj]apanese"    && TRACK_LANGUAGE="JAP"
+    doesTrackNameMatch "${TRACK_NAME}" "[Kk]orean"      && TRACK_LANGUAGE="KOR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ll]atvian"     && TRACK_LANGUAGE="LAV"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ll]ithuanian"  && TRACK_LANGUAGE="LIT"
+    doesTrackNameMatch "${TRACK_NAME}" "[Mm]alay"       && TRACK_LANGUAGE="MAY"
+    doesTrackNameMatch "${TRACK_NAME}" "[Nn]orwegian"   && TRACK_LANGUAGE="NOR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Pp]olish"      && TRACK_LANGUAGE="POL"
+    doesTrackNameMatch "${TRACK_NAME}" "[Pp]ortuguese"  && TRACK_LANGUAGE="POR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Rr]omanian"    && TRACK_LANGUAGE="RUM"
+    doesTrackNameMatch "${TRACK_NAME}" "[Rr]ussian"     && TRACK_LANGUAGE="RUS"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]lovak"      && TRACK_LANGUAGE="SLO"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]lovenian"   && TRACK_LANGUAGE="SLV"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]panish"     && TRACK_LANGUAGE="SPA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Ss]wedish"     && TRACK_LANGUAGE="SWE"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]amil"       && TRACK_LANGUAGE="TAM"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]elugu"      && TRACK_LANGUAGE="TEL"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]hai"        && TRACK_LANGUAGE="THA"
+    doesTrackNameMatch "${TRACK_NAME}" "[Tt]urkish"     && TRACK_LANGUAGE="TUR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Uu]krainian"   && TRACK_LANGUAGE="UKR"
+    doesTrackNameMatch "${TRACK_NAME}" "[Vv]ietmanese"  && TRACK_LANGUAGE="VIE"
 
     [ -z "${TRACK_LANGUAGE}" ] && TRACK_LANGUAGE=$(getTrackLanguage "${TRACK_ID}")
 
@@ -457,12 +473,9 @@ if [ "${SUBTITLE_TRACKS_COUNT}" -gt 0 ]; then
                     if [ "${DUPLICATIONS}" -ge 1 ]; then
                         if [ -n "${TRACK_NAME}" ]; then
                             TRACK_LANGUAGE_NAME=$(echo "${TRACK_NAME}" | sed \
-                                -e 's/\s//g' -e 's/[()]//g' \
-                                -e 's/\([Cc]hinese\|[Ff]rench\|[Pp]ortuguese\|[Ss]panish\)//g' \
-                                -e 's/[Bb]rasil\|[Bb]razilian/Brazil/g' \
-                                -e 's/[Cc]anadi[ae]n/Canada/g' \
-                                -e 's/[Ll]atin[o]*[Aa]m[eé]rica[n]*[o]*/LatinAmerica/g' \
-                                -e 's/[Ee]uropean/Europe/g')
+                                -e 's/\s//g' \
+                                -e 's/[()]//g' \
+                                -e 's/\([Cc]hinese\|[Ff]rench\|[Pp]ortuguese\|[Ss]panish\)//g')
 
                             TRACK_LANGUAGE="${TRACK_LANGUAGE}-${TRACK_LANGUAGE_NAME}"
                         else
