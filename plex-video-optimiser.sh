@@ -459,8 +459,9 @@ if [ "${SUBTITLE_TRACKS_COUNT}" -gt 0 ]; then
                             TRACK_LANGUAGE_NAME=$(echo "${TRACK_NAME}" | sed \
                                 -e 's/\s//g' -e 's/[()]//g' \
                                 -e 's/\([Cc]hinese\|[Ff]rench\|[Pp]ortuguese\|[Ss]panish\)//g' \
-                                -e 's/[Bb]razilian/Brazil/g' \
-                                -e 's/[Cc]anadian/Canada/g' \
+                                -e 's/[Bb]rasil\|[Bb]razilian/Brazil/g' \
+                                -e 's/[Cc]anadi[ae]n/Canada/g' \
+                                -e 's/[Ll]atin[o]*[Aa]m[eé]rica[n]*[o]*/LatinAmerica/g' \
                                 -e 's/[Ee]uropean/Europe/g')
 
                             TRACK_LANGUAGE="${TRACK_LANGUAGE}-${TRACK_LANGUAGE_NAME}"
@@ -525,14 +526,11 @@ if ${IS_OPTIMISABLE}; then
         replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "FRE-France" "FRE-Canada" "FRE"
 
         # Portuguese - Portugal
-        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "POR" "POR-Brasil" "POR"
         replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "POR" "POR-Brazil" "POR"
 
         # Spanish - Spain
         replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA" "SPA-LatinAmerica" "SPA"
-        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA" "SPA-Latinoamérica" "SPA"
         replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-España" "SPA" "SPA"
-        replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-España" "SPA-Latinoamérica" "SPA"
         replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-Europe" "SPA-LatinAmerica" "SPA"
         replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-Spain" "SPA" "SPA"
         replaceDuplicatedSubtitles "${TEMP_SUBTITLE_FILE_PREFIX}" "SPA-Spain" "SPA-LatinAmerica" "SPA"
