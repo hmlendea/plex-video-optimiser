@@ -97,6 +97,29 @@ function getAudioTrackName {
     echo "${AUDIO_TRACK_NAME}"
 }
 
+function getSubtitleTrackName {
+    local TRACK_ID="${1}"
+
+    getTrackName "${TRACK_ID}" | \
+        sed -e 's/[Bb]rasil\|[Bb]razilian/Brazil/g' \
+            -e 's/[Cc]anadi[ae]n/Canada/g' \
+            -e 's/[Ll]atin[o]*[Aa]m[eé]rica[n]*[o]*/LatinAmerica/g' \
+            -e 's/[Ee]uropean/Europe/g' | \
+        sed -e 's/^中文/Chinese/g' \
+            -e 's/^(廣東話\|[Yy]ue)/Cantonese/g' \
+            -e 's/^[Dd]ansk/Danish/g' \
+            -e 's/^[Nn]ederlands/Dutch/g' \
+            -e 's/^[Ss]uomi/Finnish/g' \
+            -e 's/^[Ff]rançais/French/g' \
+            -e 's/^[Dd]eutsch/German/g' \
+            -e 's/^[Ii]taliano/Italian/g' \
+            -e 's/^[Nn]orsk/Norwegian/g' \
+            -e 's/^[Pp]ortuguês/Portuguese/g' \
+            -e 's/^[Rr]omână/Romanian/g' \
+            -e 's/^[Ee]spañol/Spanish/g' \
+            -e 's/^[Ss]venska/Swedish/g'
+}
+
 function getTrackName {
     local TRACK_ID="${1}"
     local TRACK_ID_MKVINFO=-1
@@ -111,32 +134,13 @@ function getTrackName {
     MKVINFO_TRACK_END_LINE=$(mkvinfo "${FILE_PATH}" | tail --lines=+"${MKVINFO_TRACK_BEGIN_LINE}" | grep -n "\(| +\||+\)" | head -n 1 | awk -F: '{print $1}')
     MKVINFO_TRACK_END_LINE=$((MKVINFO_TRACK_BEGIN_LINE+MKVINFO_TRACK_END_LINE-2))
     MKVINFO_TRACK_LINES_COUNT=$((MKVINFO_TRACK_END_LINE-MKVINFO_TRACK_BEGIN_LINE+1))
-    TRACK_NAME=$(mkvinfo "${FILE_PATH}" | \
-                    tail --lines=+"${MKVINFO_TRACK_BEGIN_LINE}" | \
-                    head -n "${MKVINFO_TRACK_LINES_COUNT}" | \
-                    grep "+ Name:" | \
-                    awk -F: '{print $2}' | \
-                    sed -e 's/^\s*//g' \
-                        -e 's/\s*$//g' | \
-                    sed -e 's/[Bb]rasil\|[Bb]razilian/Brazil/g' \
-                        -e 's/[Cc]anadi[ae]n/Canada/g' \
-                        -e 's/[Ll]atin[o]*[Aa]m[eé]rica[n]*[o]*/LatinAmerica/g' \
-                        -e 's/[Ee]uropean/Europe/g' | \
-                    sed -e 's/^中文/Chinese/g' \
-                        -e 's/^(廣東話\|[Yy]ue)/Cantonese/g' \
-                        -e 's/^[Dd]ansk/Danish/g' \
-                        -e 's/^[Nn]ederlands/Dutch/g' \
-                        -e 's/^[Ss]uomi/Finnish/g' \
-                        -e 's/^[Ff]rançais/French/g' \
-                        -e 's/^[Dd]eutsch/German/g' \
-                        -e 's/^[Ii]taliano/Italian/g' \
-                        -e 's/^[Nn]orsk/Norwegian/g' \
-                        -e 's/^[Pp]ortuguês/Portuguese/g' \
-                        -e 's/^[Rr]omână/Romanian/g' \
-                        -e 's/^[Ee]spañol/Spanish/g' \
-                        -e 's/^[Ss]venska/Swedish/g')
 
-    echo "${TRACK_NAME}"
+    mkvinfo "${FILE_PATH}" | \
+        tail --lines=+"${MKVINFO_TRACK_BEGIN_LINE}" | \
+        head -n "${MKVINFO_TRACK_LINES_COUNT}" | \
+        grep "+ Name:" | \
+        awk -F: '{print $2}' | \
+        sed -e 's/^\s*//g' -e 's/\s*$//g'
 }
 
 function getTrackLanguage {
@@ -440,7 +444,7 @@ if [ "${SUBTITLE_TRACKS_COUNT}" -gt 0 ]; then
 
         for TRACK_ID in ${SUBTITLE_TRACKS}; do
             TRACK_LANGUAGE=$(getSubtitleLanguage "${TRACK_ID}")
-            TRACK_NAME=$(getTrackName "${TRACK_ID}")
+            TRACK_NAME=$(getSubtitleTrackName "${TRACK_ID}")
 
             isSubtitleTrackDiscardable "${TRACK_ID}" && continue
 
@@ -463,7 +467,7 @@ if [ "${SUBTITLE_TRACKS_COUNT}" -gt 0 ]; then
 
             for TRACK_ID in ${SUBTITLE_TRACKS}; do
                 TRACK_LANGUAGE=$(getSubtitleLanguage "${TRACK_ID}")
-                TRACK_NAME=$(getTrackName "${TRACK_ID}")
+                TRACK_NAME=$(getSubtitleTrackName "${TRACK_ID}")
 
                 isSubtitleTrackDiscardable "${TRACK_ID}" && continue
 
