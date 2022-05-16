@@ -88,8 +88,13 @@ function getAudioTrackName {
     local AUDIO_TRACK_NAME=""
 
     AUDIO_TRACK_FORMAT=$(getAudioTrackFormat "${AUDIO_TRACK_INDEX}")
-    TRACK_ID=$((AUDIO_TRACK_INDEX+1))
-#    TRACK_ID=${AUDIO_TRACK_INDEX}
+    TRACK_ID=${AUDIO_TRACK_INDEX}
+
+    FIRST_TRACK_TYPE=$(getFirstTrackType)
+
+    if [ "${FIRST_TRACK_TYPE}" == "video" ]; then
+        TRACK_ID=$((TRACK_ID+1))
+    fi
 
     if [ -n "${AUDIO_TRACK_FORMAT}" ]; then
         AUDIO_TRACK_NAME=$(getTrackName "${TRACK_ID}")
@@ -169,6 +174,14 @@ function getTrackLanguage {
                         sed 's/ //g')
 
     echo "${TRACK_LANGUAGE}"
+}
+
+function getFirstTrackType {
+    mkvinfo "${FILE_PATH}" | \
+        grep "Track type:" | \
+        head -n 1 | \
+        awk -F':' '{print $2}' | \
+        sed -e 's/^\s*//g' -e 's/\s*$//g'
 }
 
 echo "Gathering file info for ${FILE_PATH} ..."
