@@ -116,6 +116,8 @@ function getSubtitleTrackName {
             -e 's/\(.*\)\s\s*\('"${LANGUAGE_VARIANTS_PATTERN}"'\)$/\1 (\2)/g' | \
         sed -e 's/^中文/Chinese/g' \
             -e 's/^(廣東話\|[Yy]ue)/Cantonese/g' \
+            -e 's/^日本語/Japanese/g' \
+            -e 's/^한국어/Korean/g' \
             -e 's/^[Dd]ansk/Danish/g' \
             -e 's/^[Nn]ederlands/Dutch/g' \
             -e 's/^[Ss]uomi/Finnish/g' \
@@ -497,7 +499,7 @@ if [ "${SUBTITLE_TRACKS_COUNT}" -gt 0 ]; then
                                 -e 's/[()]//g' \
                                 -e 's/\([Cc]hinese\|[Ff]rench\|[Pp]ortuguese\|[Ss]panish\)//g')
 
-                            TRACK_LANGUAGE="${TRACK_LANGUAGE}-${TRACK_LANGUAGE_NAME}"
+                            TRACK_LANGUAGE="${TRACK_LANGUAGE}-${TRACK_LANGUAGE_NAME}$((DUPLICATIONS+1))"
                         else
                             TRACK_LANGUAGE="${TRACK_LANGUAGE}$((DUPLICATIONS+1))"
                         fi
