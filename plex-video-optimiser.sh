@@ -115,21 +115,39 @@ function getSubtitleTrackName {
             -e 's/[Ee]uropean/Europe/g' | \
         sed -e 's/^\('"${LANGUAGE_VARIANTS_PATTERN}"'\)\s\s*\(.*\)/\2 (\1)/g' \
             -e 's/\(.*\)\s\s*\('"${LANGUAGE_VARIANTS_PATTERN}"'\)$/\1 (\2)/g' | \
-        sed -e 's/^中文/Chinese/g' \
+        sed -e 's/^العربية/Arabic/g' \
+            -e 's/^中文/Chinese/g' \
             -e 's/^(廣東話\|[Yy]ue)/Cantonese/g' \
             -e 's/^日本語/Japanese/g' \
             -e 's/^한국어/Korean/g' \
+            -e 's/^български/Bulgarian/g' \
+            -e 's/^Čeština/Czech/g' \
             -e 's/^[Dd]ansk/Danish/g' \
             -e 's/^[Nn]ederlands/Dutch/g' \
+            -e 's/^[Ee]esti/Estonian/g' \
             -e 's/^[Ss]uomi/Finnish/g' \
             -e 's/^[Ff]rançais/French/g' \
             -e 's/^[Dd]eutsch/German/g' \
+            -e 's/^Ελληνικά/Greek/g' \
+            -e 's/^עברית/Hebrew/g' \
+            -e 's/^Bahasa Indonesia/Indonesian/g' \
             -e 's/^[Ii]taliano/Italian/g' \
+            -e 's/^[Mm]agyar/Hungarian/g' \
+            -e 's/^[Ll]atvie[sš]u/Latvian/g' \
+            -e 's/^[Ll]ietuvi[uų]/Lithuanian/g' \
+            -e 's/^Bahasa Melayu/Malaysian/g' \
             -e 's/^[Nn]orsk/Norwegian/g' \
+            -e 's/^[Pp]olski/Polish/g' \
             -e 's/^[Pp]ortuguês/Portuguese/g' \
-            -e 's/^[Rr]omână/Romanian/g' \
+            -e 's/^[Rr]om[aâ]n[aă]/Romanian/g' \
+            -e 's/^Русский/Russian/g' \
             -e 's/^[Ee]spañol/Spanish/g' \
-            -e 's/^[Ss]venska/Swedish/g'
+            -e 's/^[Ss]venska/Swedish/g' \
+            -e 's/^தமிழ்/Tamil/g' \
+            -e 's/^తెలుగు/Telugu/g' \
+            -e 's/^ไทย/Thai/g' \
+            -e 's/^українська/Ukrainian/g' \
+            -e 's/^Tiếng Việt/Vietnamese/g'
 }
 
 function getTrackName {
