@@ -115,6 +115,7 @@ function getSubtitleTrackName {
             -e 's/[Ee]uropean/Europe/g' | \
         sed -e 's/^\('"${LANGUAGE_VARIANTS_PATTERN}"'\)\s\s*\(.*\)/\2 (\1)/g' \
             -e 's/\(.*\)\s\s*\('"${LANGUAGE_VARIANTS_PATTERN}"'\)$/\1 (\2)/g' | \
+        sed -e 's/\[Full\]//g' | \
         sed -e 's/^العربية/Arabic/g' \
             -e 's/^中文/Chinese/g' \
             -e 's/^(廣東話\|[Yy]ue)/Cantonese/g' \
@@ -147,7 +148,9 @@ function getSubtitleTrackName {
             -e 's/^తెలుగు/Telugu/g' \
             -e 's/^ไทย/Thai/g' \
             -e 's/^українська/Ukrainian/g' \
-            -e 's/^Tiếng Việt/Vietnamese/g'
+            -e 's/^Tiếng Việt/Vietnamese/g' | \
+        sed -e 's/^\s*//g' \
+            -e 's/\s*$//g'
 }
 
 function getTrackName {
