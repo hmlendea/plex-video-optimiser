@@ -25,7 +25,7 @@ FFMPEG_ARGUMENTS=""
 
 OUTPUT_FILE_NAME=${FILE_NAME}
 OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/\.mkv$//g')
-OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BLUEBIRD\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CRiSC\|CtrlHD\|decibeL\|EbP\|ETRG\|FLUX\|FraMeSToR\|FREEHK\|ggez\|GOLDIES\|HDMaN\|iNTERNAL\|L0L\|LazyStudio\|lightspeed\|LouLaVie\|MovietaM\|MTeam\|MZABI\|NiXON\|NTb\|pawel2006\|PETFRiFiED\|playBD\|[Pp][Ss][Yy][Cc][Hh][Dd]\|t3nzin\|TENEIGHTY\|TOMMY\|TrollUHD\|ZON3\)//g')
+OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(AMIABLE\|BAE\|BLUEBIRD\|BluHD\|BLUTONiUM\|BTN\|cakes\|CasStudio\|CHD\|CRiSC\|CtrlHD\|decibeL\|EbP\|ETRG\|FLUX\|FraMeSToR\|FREEHK\|ggez\|GOLDIES\|HDMaN\|IdoHD\|iNTERNAL\|KiNGS\|L0L\|LazyStudio\|lightspeed\|LouLaVie\|MovietaM\|MTeam\|MZABI\|NiXON\|NTb\|pawel2006\|PETFRiFiED\|playBD\|[Pp][Ss][Yy][Cc][Hh][Dd]\|t3nzin\|TENEIGHTY\|TOMMY\|TrollUHD\|ZON3\)//g')
 OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\([Dd][Vv][Dd]\|[Pp][Aa][Ll]\|ROKU\|[Ww][Ss]\)//g')
 OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(720p\|1080p\|2160[p]*\|4K\|UHD\)//g')
 OUTPUT_FILE_NAME=$(echo "${OUTPUT_FILE_NAME}" | sed 's/[-\ \.]*\(10bit\|BT2020\|Chroma[\ \.]422[\ \.]Edition\|VISIONPLUS\|HDR1000\|HDR\)//g')
