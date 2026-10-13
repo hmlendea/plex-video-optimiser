@@ -6,35 +6,34 @@ This document describes the current architecture of plex-video-optimiser, a sing
 
 ## 📑 Table of Contents
 
-- Overview
-- Purpose
-- System Context
-- Architectural Style
-- Runtime Flow
-- Components
-- Architectural Areas
-- Data Architecture
-- Interfaces and Integrations
-- Key Flows
-  - Main Execution Flow
-  - Subtitle Extraction Flow
-- Domain-Specific Concerns
-- Cross-Cutting Concerns
-  - Security and Privacy
-  - Error Handling
-  - Observability
-  - Configuration
-- Dependency Direction and Rules
-- External Dependencies
-- Deployment and Operations
-- Compatibility Contracts
-- Testing and Verification
-- Design Constraints
-- Extension Points
-- Evolution and Migration
-- Architecture Decisions
-- Source Map
-- Related Documentation
+- [Purpose](#-purpose)
+- [System Context](#-system-context)
+- [Architectural Style](#-architectural-style)
+- [Runtime Flow](#-runtime-flow)
+- [Components](#-components)
+- [Architectural Areas](#-architectural-areas)
+- [Data Architecture](#-data-architecture)
+- [Interfaces and Integrations](#-interfaces-and-integrations)
+- [Key Flows](#-key-flows)
+  - [Main Execution Flow](#-main-execution-flow)
+  - [Subtitle Extraction Flow](#-subtitle-extraction-flow)
+- [Domain-Specific Concerns](#-domain-specific-concerns)
+- [Cross-Cutting Concerns](#-cross-cutting-concerns)
+  - [Security and Privacy](#-security-and-privacy)
+  - [Error Handling](#-error-handling)
+  - [Observability](#-observability)
+  - [Configuration](#-configuration)
+- [Dependency Direction and Rules](#-dependency-direction-and-rules)
+- [External Dependencies](#-external-dependencies)
+- [Deployment and Operations](#-deployment-and-operations)
+- [Compatibility Contracts](#-compatibility-contracts)
+- [Testing and Verification](#-testing-and-verification)
+- [Design Constraints](#-design-constraints)
+- [Extension Points](#-extension-points)
+- [Evolution and Migration](#-evolution-and-migration)
+- [Architecture Decisions](#-architecture-decisions)
+- [Source Map](#-source-map)
+- [Related Documentation](#-related-documentation)
 
 ## 🎯 Purpose
 
