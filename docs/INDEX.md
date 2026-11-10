@@ -38,7 +38,7 @@
 
 ### Operations
 - [configuration.md](./configuration.md) — Configuration options and environment variables
-- [build-and-deployment.md](./build-and-deployment.md) — Build pipeline, GitHub Actions workflow
+- [build-and-deployment.md](./build-and-deployment.md) — Build pipeline, GitHub Actions workflows, and release process
 - [testing.md](./testing.md) — Test strategy and organisation
 - [troubleshooting.md](./troubleshooting.md) — Common issues and solutions
 

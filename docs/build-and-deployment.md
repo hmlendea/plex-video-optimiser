@@ -34,12 +34,23 @@ jobs:
 
 **Dependencies**: `shellcheck` (installed on Ubuntu runner)
 
+### GitHub Actions Workflow: `.github/workflows/github-release.yml`
+
+**Purpose**: Attach `plex-video-optimiser.sh` to a GitHub Release after publication.
+
+**Trigger**: Published GitHub Release
+
+**Job**: `upload-script` - checks out the repository and uploads the script as a release asset.
+
+**Permissions**: Requires `contents: write` for the automatically provided GitHub token.
+
 ## Release Process
 
 1. Tag a commit: `git tag v1.x.x`
 2. Push tag: `git push origin v1.x.x`
-3. GitHub Actions creates release (if configured)
-4. Badge in README updates automatically
+3. Publish the GitHub Release
+4. GitHub Actions attaches `plex-video-optimiser.sh` to the release
+5. Badge in README updates automatically
 
 ## Deployment
 

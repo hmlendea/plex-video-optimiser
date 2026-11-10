@@ -6,7 +6,8 @@
 plex-video-optimiser/
 ├── .github/
 │   └── workflows/
-│       └── bash.yml              # Shellcheck CI workflow
+│       ├── bash.yml              # Shellcheck CI workflow
+│       └── github-release.yml    # Release asset upload workflow
 ├── docs/                         # Documentation (generated)
 │   ├── INDEX.md                  # Master index
 │   ├── architecture.md           # High-level architecture
