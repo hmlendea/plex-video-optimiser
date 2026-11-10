@@ -1,4 +1,5 @@
-[![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/fund.html) [![Build Status](https://github.com/hmlendea/plex-video-optimiser/actions/workflows/bash.yml/badge.svg)](https://github.com/hmlendea/plex-video-optimiser/actions/workflows/bash.yml)
+[![Donate](https://img.shields.io/badge/-%E2%99%A5%20Donate-%23ff69b4)](https://hmlendea.go.ro/funding)
+[![Build Status](https://github.com/hmlendea/plex-video-optimiser/actions/workflows/bash.yml/badge.svg)](https://github.com/hmlendea/plex-video-optimiser/actions/workflows/bash.yml)
 [![Latest Release](https://img.shields.io/github/v/release/hmlendea/plex-video-optimiser)](https://github.com/hmlendea/plex-video-optimiser/releases/latest)
 [![License](https://img.shields.io/github/license/hmlendea/plex-video-optimiser)](https://github.com/hmlendea/plex-video-optimiser/blob/master/LICENSE)
 
@@ -8,20 +9,20 @@ A CLI tool to optimise video files for use on Plex on a Raspberry Pi. The output
 
 ## 📑 Table of Contents
 
-- [Capabilities](#-capabilities)
-- [Use Cases](#-use-cases)
-- [Usage](#-usage)
-- [Command Reference](#-command-reference)
-- [Known Limitations](#-known-limitations)
-- [System Requirements](#-system-requirements)
-- [Installation](#-installation)
+- [Capabilities](#capabilities)
+- [Use Cases](#use-cases)
+- [Usage](#usage)
+- [Command Reference](#command-reference)
+- [Known Limitations](#known-limitations)
+- [System Requirements](#system-requirements)
+- [Installation](#installation)
   - [From Source](#from-source)
   - [Dependencies](#dependencies)
-- [Architecture](#-architecture)
-- [Contributing](#-contributing)
-- [Code of Conduct](#-code-of-conduct)
-- [Project Engagement](#-project-engagement)
-- [License](#-license)
+- [Architecture](#architecture)
+- [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
+- [Project Engagement](#project-engagement)
+- [License](#license)
 
 ## ✨ Capabilities
 
@@ -144,10 +145,13 @@ See the [Code of Conduct](./CODE_OF_CONDUCT.md) for the standards of conduct exp
 
 ## 💝 Project Engagement
 
-- [Report issues](https://github.com/hmlendea/plex-video-optimiser/issues)
-- [Request features](https://github.com/hmlendea/plex-video-optimiser/issues/new?template=feature_request.md)
-- [Security vulnerabilities](SECURITY.md)
+Discovered a problem or have a suggestion? [Open an issue](https://github.com/hmlendea/plex-video-optimiser/issues)!
+
+If you find this project useful, consider starring ⭐️ it on GitHub!
+
+[![Donate](https://raw.githubusercontent.com/hmlendea/readme-assets/master/donate_generic.png)](https://hmlendea.go.ro/funding)
 
 ## 📄 License
 
-GNU General Public License v3.0 or later. See [LICENSE](LICENSE) for details.
+This project is being distributed under the `GNU General Public License v3.0` or later.
+See [LICENSE](./LICENSE) for additional information.

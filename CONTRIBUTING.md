@@ -19,9 +19,9 @@ This document covers the guidelines and processes for contributing to this proje
 - [Security](#-security)
 - [License](#-license)
 - [Recognition](#-recognition)
-- [Getting Help](#-getting-help)
+- [Getting Assistance](#-getting-assistance)
 
-## 🤝 How to Contribute
+## 🤝 Contributing
 
 ### Reporting Issues
 
