@@ -18,6 +18,7 @@ A CLI tool to optimise video files for use on Plex on a Raspberry Pi. The output
 - [Installation](#installation)
   - [From Source](#from-source)
   - [Dependencies](#dependencies)
+- [GitHub Actions](#github-actions)
 - [Architecture](#architecture)
 - [Contributing](#contributing)
 - [Code of Conduct](#code-of-conduct)
@@ -121,6 +122,13 @@ sudo dnf install mkvtoolnix ffmpeg perl-File-Rename fix-subtitle
 ```bash
 brew install mkvtoolnix ffmpeg rename fix-subtitle
 ```
+
+## ⚙️ GitHub Actions
+
+| Workflow | Purpose | What it does |
+|----------|---------|--------------|
+| [bash.yml](https://github.com/hmlendea/plex-video-optimiser/blob/master/.github/workflows/bash.yml) | Shell script validation | Runs `shellcheck` on every push to and pull request against `master` |
+| [github-release.yml](https://github.com/hmlendea/plex-video-optimiser/blob/master/.github/workflows/github-release.yml) | Release asset distribution | Attaches `plex-video-optimiser.sh` to the GitHub Release whenever a release is published |
 
 ## 🏗️ Architecture
 

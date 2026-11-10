@@ -9,6 +9,7 @@ This repository contains **plex-video-optimiser**, a command-line tool that prep
 ### In Scope
 - Single Bash script (`plex-video-optimiser.sh`) — the entire application
 - GitHub Actions workflow for shellcheck linting (`.github/workflows/bash.yml`)
+- GitHub Actions workflow for attaching the script to published releases (`.github/workflows/github-release.yml`)
 - Documentation under `docs/`
 - Standard repository files (README.md, LICENSE)
 
@@ -48,7 +49,8 @@ KEEP_SDH_SUBTITLES=false
 plex-video-optimiser/
 ├── .github/
 │   └── workflows/
-│       └── bash.yml          # Shellcheck CI
+│       ├── bash.yml          # Shellcheck CI
+│       └── github-release.yml  # Release asset upload
 ├── docs/                     # Generated documentation
 │   ├── INDEX.md
 │   ├── architecture.md
