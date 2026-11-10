@@ -4,7 +4,7 @@ This document covers the guidelines and processes for contributing to this proje
 
 ## 📑 Table of Contents
 
-- [How to Contribute](#-how-to-contribute)
+- [Contributing](#-contributing)
   - [Reporting Issues](#reporting-issues)
   - [Suggesting Enhancements](#suggesting-enhancements)
   - [Code Contributions](#code-contributions)
@@ -118,9 +118,9 @@ Recommended test scenarios:
 - Follow the existing documentation style.
 - Update `README.md` if usage changes.
 
-## 📋 Code of Conduct
+## 📜 Code of Conduct
 
-This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+This project follows the [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ## 🔒 Security
 
@@ -134,7 +134,7 @@ By contributing, you agree that your contributions will be licensed under the [G
 
 Contributors are recognized in the [GitHub contributors list](https://github.com/horatiu/plex-video-optimiser/graphs/contributors).
 
-## ❓ Getting Help
+## ❓ Getting Assistance
 
 - Open a [GitHub Issue](https://github.com/horatiu/plex-video-optimiser/issues) for bugs or questions.
 - Check existing discussions and documentation first.

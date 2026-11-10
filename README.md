@@ -12,11 +12,15 @@ A CLI tool to optimise video files for use on Plex on a Raspberry Pi. The output
 - [Use Cases](#-use-cases)
 - [Usage](#-usage)
 - [Command Reference](#-command-reference)
+- [Known Limitations](#-known-limitations)
 - [System Requirements](#-system-requirements)
 - [Installation](#-installation)
+  - [From Source](#from-source)
+  - [Dependencies](#dependencies)
 - [Architecture](#-architecture)
 - [Contributing](#-contributing)
-- [Security](#-security)
+- [Code of Conduct](#-code-of-conduct)
+- [Project Engagement](#-project-engagement)
 - [License](#-license)
 
 ## ✨ Capabilities
@@ -123,11 +127,20 @@ See [architecture documentation](ARCHITECTURE.md) for system context, component 
 
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+You are welcome to submit any suggestion, feedback, or modification to this project.
+
+When doing so, please:
+- Maintain cross-platform compatibility
+- Submit focused pull requests that conform to the existing code style
+- Maintain your branch synchronised with `master`
+- Revise the documentation when functionality changes
+- Raise a new [issue](https://github.com/hmlendea/plex-video-optimiser/issues) for problems or suggestions
+
+See the [Contributing Guidelines](./CONTRIBUTING.md) for details on how to report issues, suggest enhancements, and submit changes.
 
 ## 📜 Code of Conduct
 
-This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). By participating, you are expected to uphold this code.
+See the [Code of Conduct](./CODE_OF_CONDUCT.md) for the standards of conduct expected in all project spaces.
 
 ## 💝 Project Engagement
 
